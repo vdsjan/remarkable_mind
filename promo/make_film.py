@@ -520,6 +520,8 @@ def build_audio(out_wav):
         i = int(start * sr)
         voice[i:i + len(v)] += v[:n - i]
         a, b = max(0, i - int(0.25 * sr)), min(n, i + len(v) + int(0.3 * sr))
+        if a < CHORD * sr < b + 0.4 * sr:     # let the final chord ring at full level
+            b = int((CHORD - 0.3) * sr)
         duck[a:b] = 0.34                      # music steps back under the voice
     k = int(0.35 * sr)
     kernel = np.hanning(k)
