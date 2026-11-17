@@ -6,7 +6,7 @@
 
 | | |
 |---|---|
-| **De app** | [`dist/RemarkableMind.pdf`](dist/RemarkableMind.pdf) — zet dit bestand op je reMarkable |
+| **De app** | [`dist/RemarkableMind.pdf`](dist/RemarkableMind.pdf) — 849 pagina's, 6.020 tikbare links, 4,9 MB; zet dit bestand op je reMarkable |
 | **De promofilm** | [`promo/RemarkableMind-promo.mp4`](promo/RemarkableMind-promo.mp4) — 66 seconden, Nederlands gesproken |
 
 ## Wat is het?
@@ -91,7 +91,9 @@ uit `mind/games/base.py` invult, plus de sleutel in `ORDER` in
 - vier geanimeerde scènes en al het artwork zijn gegenereerd met ElevenLabs
   (beeld → video), in één risografie-stijl met vier inkten;
 - de voice-over (Vlaamse stem) en de muziek komen van ElevenLabs;
-- alle schermen in de film zijn echte pagina's uit de PDF.
+- alle schermen in de film zijn echte pagina's uit de PDF;
+- de montage volgt de muziek: de onrustige intro eindigt op 5,7 s, de groove
+  start op 11,4 s en het slotakkoord valt op 62,9 s.
 
 ```bash
 python promo/make_film.py

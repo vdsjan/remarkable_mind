@@ -164,6 +164,10 @@ class Woordzoeker(Game):
         assert rest == letters(puz["solution"]), (rest, puz["solution"])
         assert len(rest) >= 4
 
+    def fingerprints(self, puz):
+        """Keys that should not repeat within one book (builder may re-roll)."""
+        return [f"thema:{puz['theme']}:{puz['size']}", f"oplossing:{puz['solution']}"]
+
     def instruction(self, puz, part=0):
         return (f"Thema: {puz['theme']}. Streep alle woorden door; de "
                 "overgebleven letters vormen de oplossing.")
@@ -246,15 +250,13 @@ class Woordzoeker(Game):
             sy -= 22.0
 
     def icon(self, c, cx, cy, s, color):
-        h = s / 2
-        for i, ch in enumerate("AZ"):
-            text_mid(c, cx - h * 0.55 + i * h * 0.75, cy + h * 0.5, ch, "SansB",
-                     s * 0.30, color)
-        text_mid(c, cx - h * 0.55, cy - h * 0.35, "W", "SansB", s * 0.30, color)
-        r = s * 0.23
-        circle(c, cx + h * 0.25, cy - h * 0.2, r, stroke=color, lw=1.6)
-        line(c, cx + h * 0.25 + r * 0.72, cy - h * 0.2 - r * 0.72,
-             cx + h * 0.95, cy - h * 0.95, 2.0, color)
+        for dx, dy, ch in ((-0.3, 0.3, "A"), (0.02, 0.3, "Z"), (-0.3, -0.06, "W"),
+                           (-0.3, -0.4, "O")):
+            text_mid(c, cx + dx * s, cy + dy * s, ch, "SansB", s * 0.27, color)
+        r = s * 0.2
+        ox, oy = cx + 0.16 * s, cy - 0.14 * s
+        circle(c, ox, oy, r, stroke=color, lw=1.6)
+        line(c, ox + r * 0.72, oy - r * 0.72, cx + 0.5 * s, cy - 0.5 * s, 2.0, color)
 
 
 GAME = Woordzoeker()

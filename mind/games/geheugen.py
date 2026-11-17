@@ -4,9 +4,8 @@ Part 0 is the study page, part 1 the question page. Three variants:
 coloured shapes in a grid, a list (shopping, to-do, packing) and a short
 scene full of names, times and numbers.
 """
-from ..draw import (Grid, circle, line, paragraph, polyline, rrect, star, text,
-                    text_mid, wrap)
-from ..theme import GREEN, GREY, INK, MUSTARD, PEN, PURPLE, RED, WHITE
+from ..draw import Grid, circle, line, rrect, star, text, text_mid, wrap
+from ..theme import GREEN, INK, MUSTARD, PEN, PURPLE, RED, WHITE
 from ._woorden import DAGEN, LIJSTEN, NAMEN, STEDEN, STRATEN
 from .base import Game
 
@@ -224,7 +223,7 @@ def _restaurant(rng):
     return "Uit eten", [
         (f"Tafel {tafel} is om {tijd} gereserveerd voor {k} personen, op naam van {naam}.",
          [("tafel", "Welk nummer had de tafel?", str(tafel)),
-          ("tijd", "Om hoe laat was de tafel gereserveerd?", tijd),
+          ("tijd", "Hoe laat was de tafel gereserveerd?", tijd),
           ("personen", "Voor hoeveel personen was er gereserveerd?", str(k)),
           ("naam", "Op welke naam stond de reservatie?", naam)]),
         (f"Het gezelschap zit {plek}.",
@@ -299,7 +298,7 @@ class Geheugen(Game):
     ]
     tips = [
         "Maak er een verhaaltje of een beeld van: dat onthoudt beter dan losse feiten.",
-        "Zeg wat je ziet zachtjes hardop.",
+        "Benoem wat je ziet: wie het verwoordt, onthoudt het beter.",
     ]
     counts = (9, 8, 8)
     parts = 2
@@ -318,7 +317,9 @@ class Geheugen(Game):
                 break
         shapes = uniq + fill
         rng.shuffle(shapes)
-        cells = [[s, rng.choice(colours)] for s in shapes]
+        palette = [colours[i % ncol] for i in range(n)]     # evenly spread
+        rng.shuffle(palette)
+        cells = [[s, k] for s, k in zip(shapes, palette)]
         study = {"rows": R, "cols": C, "cells": cells}
         absent = [s for s in sorted(SHAPES) if s not in names]
         options = rng.sample(rest, 2) + [rng.choice(absent)]
@@ -404,6 +405,13 @@ class Geheugen(Game):
             for key, value in study["data"].items():
                 assert text_.count(value) >= 1
 
+    def fingerprints(self, puz):
+        """Keys that should not repeat within one book (builder may re-roll)."""
+        study = puz["study"]
+        if puz["variant"] == "verhaal":
+            return [f"verhaal:{study['title']}:{len(study['facts'])}"]
+        return []
+
     def instruction(self, puz, part=0):
         if part == 0:
             return "Bekijk dit 60 seconden aandachtig en tik dan op Verder."
@@ -439,10 +447,11 @@ class Geheugen(Game):
                 yy -= lead
         else:
             facts = study["facts"]
-            size, lead = 15.5, 23.0
+            size = 17.5 if len(facts) <= 4 else 15.5
+            lead = size * 1.5
             blocks = [wrap(f, "Serif", size, inner_w - 28) for f in facts]
             total = sum(len(b) * lead for b in blocks)
-            gap = min(24.0, (h - 16 - 2 * pad - 50 - total) / max(1, len(facts)))
+            gap = min(34.0, (h - 16 - 2 * pad - 50 - total) / max(1, len(facts)))
             yy = top - 50
             for i, lines_ in enumerate(blocks):
                 circle(c, x + 8 + pad + 8, yy - size * 0.65 + 6, 4, fill=RED, stroke=None)

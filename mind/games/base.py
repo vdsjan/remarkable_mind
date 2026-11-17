@@ -27,6 +27,11 @@ class Game:
         obeys every rule and (where the game promises it) is the only one."""
         raise NotImplementedError
 
+    def fingerprints(self, puz):
+        """Keys that should not repeat within one book (a theme, a proverb, a
+        picture). The book builder re-rolls a puzzle whose key was used."""
+        return []
+
     # -- presentation ---------------------------------------------------------
     def instruction(self, puz, part=0):
         """Optional one-line task description shown above the puzzle."""

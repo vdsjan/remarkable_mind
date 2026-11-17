@@ -805,6 +805,9 @@ class Nonogram(Game):
     counts = (9, 8, 8)
     SIZE = {1: 10, 2: 15, 3: 20}
 
+    def fingerprints(self, puz):
+        return [f"pic:{puz['pic']}"] if puz.get("pic") else []
+
     def generate(self, rng, level, avoid=()):
         """``avoid``: optional collection of ``puz["pic"]`` names already used,
         so a book can skip hand-drawn pictures it has shown before."""

@@ -53,10 +53,16 @@ def _generate_game(args):
             rng = random.Random(f"{seed}:{key}:{i}:{salt}")
             puz = game.generate(rng, level)
             sig = json.dumps(puz, sort_keys=True)
-            if sig not in seen or salt >= 20:
+            marks = set(game.fingerprints(puz))
+            # never print the same puzzle twice, and avoid repeating a theme,
+            # proverb or picture as long as fresh material is available
+            if sig not in seen and (not marks & seen or salt >= 400):
                 break
-            salt += 1                       # never print the same puzzle twice
+            salt += 1
+            if salt > 800:
+                raise RuntimeError(f"{key}: cannot generate a new puzzle {i + 1}")
         seen.add(sig)
+        seen |= marks
         out.append(puz)
     return key, out
 
@@ -333,6 +339,23 @@ def _example(c, game, puz, x, y, w, h):
         c.restoreState()
 
 
+def _teaser(c, game, puz, x, y, w, h):
+    """One unsolved example puzzle, shrunk, to show what the game looks like."""
+    bx, by, bw, bh = PLAY_BOX
+    scale = min(w / bw, (h - 14) / bh, 0.5)
+    sw, sh = bw * scale, bh * scale
+    ox = x + (w - sw) / 2
+    text(c, x + w / 2, y + h - 9, "ZO ZIET HET ERUIT", "SansB", 7.5, GREY, "c")
+    oy = y + (h - 14 - sh) / 2
+    rrect(c, ox - 6, oy - 6, sw + 12, sh + 12, 8, stroke=MID, lw=0.8)
+    c.saveState()
+    c.translate(ox, oy)
+    c.scale(scale, scale)
+    c.translate(-bx, -by)
+    game.draw(c, PLAY_BOX, puz, solved=False, part=0)
+    c.restoreState()
+
+
 def page_hub(c, ctx, game):
     gi = ctx["games"].index(game)
     n_games = len(ctx["games"])
@@ -402,6 +425,11 @@ def page_hub(c, ctx, game):
     else:
         top_y = BAR_Y - 44 - 30
         image(c, f"cat_{game.category}", W - M - 178, top_y - 182, 178, 178)
+        y = min(y, top_y - 186)
+        avail = y - (index_top + 22)
+        if avail > 110:
+            _teaser(c, game, ctx["examples"][game.key], M, index_top + 16,
+                    W - 2 * M, avail)
 
 
 def page_solutions_intro(c, ctx):
@@ -472,8 +500,7 @@ def build(seed=2026, out=ROOT / "dist" / "RemarkableMind.pdf", jobs=4,
     puzzles = build_puzzles(seed, Path(cache), jobs, log, all_games)
     examples = {}
     for g in all_games:
-        if g.example and g.key not in NO_EXAMPLE:
-            examples[g.key] = g.generate(random.Random(f"{seed}:{g.key}:example"), 1)
+        examples[g.key] = g.generate(random.Random(f"{seed}:{g.key}:example"), 1)
     plan = training_plan(all_games)
     in_plan = {}
     for d, row in enumerate(plan):

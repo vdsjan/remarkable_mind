@@ -379,9 +379,9 @@ def scene_show(P, t):
         scr = P.page([c[4] for c in cats if t >= c[0]][-1])
     else:
         seq = [("kleurlink", 20), ("nonogram", 14), ("woordzoeker", 6)]
-        k = min(int((t - colour) / 1.75), len(seq) - 1)
+        k = min(int((t - colour) / 1.4), len(seq) - 1)
         g, n = seq[k]
-        p = clamp(((t - colour) - k * 1.75 - 0.25) / 1.0)
+        p = clamp(((t - colour) - k * 1.4 - 0.15) / 0.85)
         scr = wipe(P.page(f"p:{g}:{n}"), P.solved(g, n), p)
         if 0 < p < 1:
             pen_at = (315 + 210 * math.sin(t * 8), 170 + p * 540)
@@ -389,7 +389,7 @@ def scene_show(P, t):
     dy = (1 - ease((t - T_SHOW) / 0.9)) * 1100
     dy += ease((t - (T_TRAIN - 0.5)) / 0.5) * 1100 if t > T_TRAIN - 0.5 else 0
     device(f, scr, dy)
-    if pen_at:
+    if pen_at and abs(dy) < 1:
         pen(f, *pen_at)
     hx, hy = P.link_center("home", "hub:doolhof")
     tap(f, hx, hy, (t - tap1) / 0.5)

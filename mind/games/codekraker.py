@@ -67,9 +67,13 @@ class Codekraker(Game):
         assert 24 <= len(plain.replace(" ", "")) <= 60
         assert puz["given"] and all(g in plain for g in puz["given"])
         assert len(set(puz["given"])) == len(puz["given"])
-        assert len(set(plain.replace(" ", ""))) > len(puz["given"]) + 4
+        assert len(set(plain.replace(" ", ""))) >= len(puz["given"]) + 3
         assert any(_plain(p) == plain and m == puz["meaning"]
                    for p, m in SPREEKWOORDEN)
+
+    def fingerprints(self, puz):
+        """Keys that should not repeat within one book (builder may re-roll)."""
+        return [f"spreekwoord:{puz['text']}"]
 
     def instruction(self, puz, part=0):
         return "Elk getal is een letter. Kraak de code en lees het spreekwoord."

@@ -5,6 +5,7 @@ from ._woorden import BONUS, THEMES
 from .base import Game
 
 LEVELS = {1: (8, 4, 6), 2: (9, 6, 8), 3: (10, 8, 12)}   # words, min len, max len
+ALL_WORDS = {w for _, words, _ in THEMES for w in words}
 
 
 def _scramble(rng, word):
@@ -15,7 +16,9 @@ def _scramble(rng, word):
         rng.shuffle(letters)
         s = "".join(letters)
         same = sum(a == b for a, b in zip(s, word))
-        if s != word and (best is None or same < best[0]):
+        if s in ALL_WORDS:                 # never show another real theme word
+            continue
+        if best is None or same < best[0]:
             best = (same, s)
             if same * 3 <= len(word) and s[:3] != word[:3]:
                 break
@@ -92,9 +95,13 @@ class Letterchaos(Game):
         assert bonus == puz["bonus"]
         assert bonus in BONUS[len(bonus)]
 
+    def fingerprints(self, puz):
+        """Keys that should not repeat within one book (builder may re-roll)."""
+        return [f"thema:{puz['theme']}:{len(puz['items'])}", f"bonus:{puz['bonus']}"]
+
     def instruction(self, puz, part=0):
         return (f"Thema: {puz['theme']}. Ontwar de woorden; de gele vakjes "
-                "vormen van boven naar beneden het bonuswoord.")
+                "vormen het bonuswoord.")
 
     # -- drawing ----------------------------------------------------------------
     def draw(self, c, box, puz, solved=False, part=0):
@@ -103,13 +110,13 @@ class Letterchaos(Game):
         n = len(items)
         maxlen = max(len(it[1]) for it in items)
         num_w = 26.0
-        pitch = min(19.0, 176.0 / maxlen)            # scrambled tiles
+        pitch = min(22.0, 176.0 / maxlen)            # scrambled tiles
         tile = pitch - 2.0
         left_w = maxlen * pitch
         gap = 22.0
-        bw = min(27.0, (w - num_w - left_w - gap) / maxlen)   # answer boxes
+        bw = min(30.0, (w - num_w - left_w - gap) / maxlen)   # answer boxes
         bonus_h = 58.0
-        row_h = min(40.0, (h - bonus_h) / n)
+        row_h = min(48.0, (h - bonus_h) / n)
         bh = min(bw, row_h - 9)
         top = y + h
         bx0 = x + num_w + left_w + gap
