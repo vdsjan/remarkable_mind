@@ -1,9 +1,11 @@
 """Assemble the complete Remarkable Mind book.
 
-    python -m mind.book --seed 2026 --out dist/RemarkableMind.pdf
+    python -m mind.book --seed 2026                  # Paper Pro, colour
+    python -m mind.book --seed 2026 --device rm2     # reMarkable 2, greyscale
 
 The "app" is one PDF: every button is an internal link, so it runs on a
-stock reMarkable Paper Pro without developer mode and without any network.
+stock reMarkable (Paper Pro in colour, reMarkable 2 in greyscale) without
+developer mode and without any network.
 """
 import argparse
 import hashlib
@@ -16,7 +18,7 @@ from pathlib import Path
 
 from reportlab.pdfgen import canvas
 
-from . import __version__, games
+from . import __version__, games, theme
 from .draw import (button, checkbox, circle, fit_size, icon_bulb,
                    icon_calendar, icon_check, icon_chevron, icon_grid,
                    icon_home, line, link, paragraph, rrect, stars, text,
@@ -43,7 +45,8 @@ def level_of(game, i):
 
 
 def _generate_game(args):
-    key, seed = args
+    key, seed, device = args
+    theme.set_device(device)                # worker processes start in colour
     game = games.get(key)
     out, seen = [], set()
     for i in range(sum(game.counts)):
@@ -74,16 +77,18 @@ def build_puzzles(seed, cache_dir, jobs=4, log=print, all_games=None):
     for game in all_games or games.all_games():
         src = Path(sys.modules[type(game).__module__].__file__).read_bytes()
         tag = hashlib.sha1(src + str(game.counts).encode()).hexdigest()[:10]
-        path = cache_dir / f"{seed}-{game.key}-{tag}.json"
+        mono = "-mono" if theme.MONO else ""   # a few games differ without colour
+        path = cache_dir / f"{seed}-{game.key}-{tag}{mono}.json"
         if path.exists():
             result[game.key] = json.loads(path.read_text())
         else:
             todo.append((game.key, path))
     if todo:
         log(f"generating {len(todo)} games ...")
+        device = next(k for k, v in theme.DEVICES.items() if v is theme.DEVICE)
         with ProcessPoolExecutor(max_workers=jobs) as pool:
             for key, puzzles in pool.map(_generate_game,
-                                         [(k, seed) for k, _ in todo]):
+                                         [(k, seed, device) for k, _ in todo]):
                 path = dict(todo)[key]
                 path.write_text(json.dumps(puzzles))
                 result[key] = puzzles
@@ -117,13 +122,17 @@ def training_plan(all_games):
 
 
 # --- page drawing ---------------------------------------------------------------
+def asset(name):
+    """Artwork for the current device (greyscale version on mono screens)."""
+    return str(ASSET_DIR / f"{name}{'_grey' if theme.MONO else ''}.jpg")
+
+
 def image(c, name, x, y, w, h):
-    c.drawImage(str(ASSET_DIR / f"{name}.jpg"), x, y, w, h,
-                preserveAspectRatio=True, anchor="c")
+    c.drawImage(asset(name), x, y, w, h, preserveAspectRatio=True, anchor="c")
 
 
 def page_cover(c, ctx):
-    c.drawImage(str(ASSET_DIR / "cover.jpg"), 0, 0, W, H)
+    c.drawImage(asset("cover"), 0, 0, W, H)
     text(c, W / 2, H - 92, TITLE, "SerifX", 47, INK, "c")
     text(c, W / 2, H - 122, SUBTITLE.upper(), "SansB", 12.5, RED, "c")
     c.setFont("SansB", 12.5)
@@ -456,14 +465,14 @@ def page_solutions_intro(c, ctx):
 
 
 def page_colophon(c, ctx):
-    y = _simple_header(c, "Colofon", f"Editie {ctx['seed']}", {
+    y = _simple_header(c, "Colofon", f"Editie {ctx['seed']} · {theme.DEVICE['label']}", {
         "home": "home", "training": "training1", "prev": "home", "next": "home"})
     blocks = [
         ("Remarkable Mind",
          f"Versie {__version__}, editie {ctx['seed']}. {ctx['n_games']} spellen, "
-         f"{ctx['n_puzzles']} puzzels, {DAYS} dagen training. Gemaakt voor de "
-         "reMarkable Paper Pro (11,8 inch, kleur) en ook bruikbaar op andere "
-         "e-paper tablets."),
+         f"{ctx['n_puzzles']} puzzels, {DAYS} dagen training. Deze uitgave is "
+         f"gemaakt voor de {theme.DEVICE['label']} ({theme.DEVICE['screen']}) "
+         "en ook bruikbaar op andere e-paper tablets."),
         ("Puzzels",
          "Alle puzzels zijn procedureel gegenereerd. Elke logische puzzel is "
          "met een solver gecontroleerd op precies één oplossing. Met een "
@@ -490,9 +499,15 @@ def page_colophon(c, ctx):
 
 
 # --- assembly -------------------------------------------------------------------
-def build(seed=2026, out=ROOT / "dist" / "RemarkableMind.pdf", jobs=4,
-          cache=ROOT / "build" / "cache", log=print, strict=True, only=None):
+def default_out(device):
+    return ROOT / "dist" / f"RemarkableMind{theme.DEVICES[device]['suffix']}.pdf"
+
+
+def build(seed=2026, out=None, jobs=4, cache=ROOT / "build" / "cache",
+          log=print, strict=True, only=None, device="paperpro"):
     register_fonts()
+    theme.set_device(device)
+    out = out or default_out(device)
     t0 = time.time()
     all_games = games.all_games(strict and not only)
     if only:                                # dev builds: a subset of the games
@@ -517,7 +532,7 @@ def build(seed=2026, out=ROOT / "dist" / "RemarkableMind.pdf", jobs=4,
     c.setTitle(f"{TITLE} – {SUBTITLE}")
     c.setAuthor("Remarkable Mind")
     c.setSubject(f"{ctx['n_games']} hersenspellen, {ctx['n_puzzles']} puzzels, "
-                 "offline voor de reMarkable Paper Pro")
+                 f"offline voor de {theme.DEVICE['label']}")
     c.setCreator(f"remarkable_mind {__version__} (editie {seed})")
 
     keys = {}                                   # destination key -> page index
@@ -581,7 +596,8 @@ def build(seed=2026, out=ROOT / "dist" / "RemarkableMind.pdf", jobs=4,
     stats = finalize(raw, out)
     raw.unlink()
     out.with_suffix(".json").write_text(json.dumps(
-        {"title": TITLE, "version": __version__, "seed": seed, "pages": keys},
+        {"title": TITLE, "version": __version__, "seed": seed, "device": device,
+         "pages": keys},
         indent=0))
     stats.update(seconds=round(time.time() - t0, 1), games=ctx["n_games"],
                  puzzles=ctx["n_puzzles"])
@@ -616,14 +632,18 @@ def finalize(raw, out):
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--seed", type=int, default=2026, help="edition number")
-    ap.add_argument("--out", default=str(ROOT / "dist" / "RemarkableMind.pdf"))
+    ap.add_argument("--device", choices=sorted(theme.DEVICES), default="paperpro",
+                    help="paperpro = colour (default), rm2 = reMarkable 2, greyscale")
+    ap.add_argument("--out", default=None,
+                    help="default: dist/RemarkableMind[-rM2].pdf")
     ap.add_argument("--jobs", type=int, default=4)
     ap.add_argument("--dev", action="store_true",
                     help="skip games that are missing or broken")
     ap.add_argument("--only", default="", help="comma separated game keys (dev)")
     a = ap.parse_args(argv)
-    build(a.seed, Path(a.out), a.jobs, strict=not (a.dev or a.only),
-          only=set(a.only.split(",")) if a.only else None)
+    build(a.seed, Path(a.out) if a.out else None, a.jobs,
+          strict=not (a.dev or a.only),
+          only=set(a.only.split(",")) if a.only else None, device=a.device)
 
 
 if __name__ == "__main__":

@@ -3,7 +3,8 @@
     python -m mind.preview sudoku [--level 2] [--seed 1] [--out DIR]
 
 Writes <out>/<key>-L<level>-puzzle.png, -solution.png (and -part2.png for
-two-page games) at the exact reMarkable Paper Pro resolution (1620 x 2160).
+two-page games) at the exact screen resolution of the device: 1620 x 2160
+for the Paper Pro, 1404 x 1872 for the reMarkable 2 (--device rm2).
 """
 import argparse
 import random
@@ -14,13 +15,14 @@ from pathlib import Path
 import pymupdf as fitz
 from reportlab.pdfgen import canvas
 
-from . import games
+from . import games, theme
 from .pages import puzzle_page, solution_page
 from .theme import W, H, register_fonts
 
 
-def render(key, level, seed, out):
+def render(key, level, seed, out, device="paperpro"):
     register_fonts()
+    px = theme.set_device(device)["px"]
     game = games.get(key)
     t0 = time.time()
     puz = game.generate(random.Random(f"{key}-{level}-{seed}"), level)
@@ -41,7 +43,7 @@ def render(key, level, seed, out):
     doc = fitz.open(str(pdf))
     paths = []
     for page, name in zip(doc, names):
-        pix = page.get_pixmap(matrix=fitz.Matrix(1620 / W, 2160 / H))
+        pix = page.get_pixmap(matrix=fitz.Matrix(px[0] / W, px[1] / H))
         p = out / f"{key}-L{level}-{name}.png"
         pix.save(str(p))
         paths.append(p)
@@ -57,9 +59,10 @@ def main(argv=None):
     ap.add_argument("--level", type=int, default=0, help="1-3, 0 = all")
     ap.add_argument("--seed", default="1")
     ap.add_argument("--out", default="build/preview")
+    ap.add_argument("--device", choices=sorted(theme.DEVICES), default="paperpro")
     a = ap.parse_args(argv)
     for level in ([a.level] if a.level else [1, 2, 3]):
-        render(a.key, level, a.seed, Path(a.out))
+        render(a.key, level, a.seed, Path(a.out), a.device)
 
 
 if __name__ == "__main__":

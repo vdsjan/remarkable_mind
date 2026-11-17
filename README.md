@@ -1,12 +1,13 @@
 # Remarkable Mind
 
-**Hersengym op papier** — 16 hersenspellen, 400 puzzels en een trainingsplan van 30 dagen, volledig offline op de reMarkable Paper Pro.
+**Hersengym op papier** — 16 hersenspellen, 400 puzzels en een trainingsplan van 30 dagen, volledig offline op de reMarkable Paper Pro (kleur) en de reMarkable 2 (zwart-wit).
 
 ![Cover, startscherm en een puzzel](docs/screens.jpg)
 
 | | |
 |---|---|
-| **De app** | [`dist/RemarkableMind.pdf`](dist/RemarkableMind.pdf) — 849 pagina's, 6.020 tikbare links, 4,9 MB; zet dit bestand op je reMarkable |
+| **De app voor de Paper Pro** | [`dist/RemarkableMind.pdf`](dist/RemarkableMind.pdf) — kleur, 849 pagina's, 6.020 tikbare links, 4,9 MB |
+| **De app voor de reMarkable 2** | [`dist/RemarkableMind-rM2.pdf`](dist/RemarkableMind-rM2.pdf) — grijstinten, zelfde 400 puzzels, 4,6 MB |
 | **De promofilm** | [`promo/RemarkableMind-promo.mp4`](promo/RemarkableMind-promo.mp4) — 66 seconden, Nederlands gesproken |
 
 ## Wat is het?
@@ -31,9 +32,34 @@ zonder account en zonder netwerk.
 - **Oplossingen achteraan**, bereikbaar via de knop *Oplossing* op elke puzzel,
   in blauw "handschrift".
 
+## Paper Pro of reMarkable 2?
+
+Beide toestellen hebben een scherm in verhouding 3:4, dus de pagina's vullen
+op allebei het hele scherm. De reMarkable 2 toont geen kleur; zijn editie is
+daarom apart opgebouwd in grijstinten die op het scherm van elkaar te
+onderscheiden blijven:
+
+![De reMarkable 2-editie in grijstinten](docs/screens-rm2.jpg)
+
+| | Paper Pro | reMarkable 2 |
+|---|---|---|
+| Scherm | 11,8 inch, kleur, 1620 × 2160 | 10,3 inch, zwart-wit, 1404 × 1872 |
+| Categorieën | vier steunkleuren | vier grijstinten, naam staat er altijd bij |
+| Oplossingen | blauw "handschrift" | grijs "handschrift" |
+| Kleurlink | gekleurde stippen met letter | zwarte stippen met letter, paden in twee grijzen |
+| Doolhof | route in blauw | route als brede grijze band |
+| Geheugentraining | vormen in kleur | vormen in zwart, grijs en wit |
+| Illustraties | vier inkten | grijsversie waarin de vier inkten te onderscheiden blijven |
+
+De logische puzzels zijn in beide edities identiek. Alleen de vormenpuzzels
+van Geheugentraining verschillen, omdat ze daar naar tinten vragen in plaats
+van naar kleuren. Door het kleinere scherm is alles op de reMarkable 2 ongeveer
+13% kleiner dan op de Paper Pro.
+
 ## Op je reMarkable zetten
 
-1. Download [`dist/RemarkableMind.pdf`](dist/RemarkableMind.pdf).
+1. Download [`dist/RemarkableMind.pdf`](dist/RemarkableMind.pdf) (Paper Pro)
+   of [`dist/RemarkableMind-rM2.pdf`](dist/RemarkableMind-rM2.pdf) (reMarkable 2).
 2. Sleep het bestand in de reMarkable-app (desktop of mobiel), of zet het
    over via USB (in *Settings → Storage* de *USB web interface* aanzetten en
    in je browser naar `http://10.11.99.1` gaan).
@@ -54,11 +80,18 @@ pip install -r requirements.txt
 python -m mind.book --seed 2027 --out dist/RemarkableMind-2027.pdf
 ```
 
+Dezelfde editie voor de reMarkable 2:
+
+```bash
+python -m mind.book --seed 2027 --device rm2 --out dist/RemarkableMind-2027-rM2.pdf
+```
+
 ```bash
 python -m pytest -q
 ```
 
-Eén spel bekijken op schermresolutie (1620 × 2160):
+Eén spel bekijken op schermresolutie (voeg `--device rm2` toe voor de
+reMarkable 2):
 
 ```bash
 python -m mind.preview sudoku --out build/preview
@@ -68,7 +101,7 @@ python -m mind.preview sudoku --out build/preview
 
 ```
 mind/
-  theme.py        formaat, kleuren, lettertypes
+  theme.py        formaat, kleuren, lettertypes en de toestelprofielen
   draw.py         tekenhulpen (rooster, knoppen, pictogrammen)
   pages.py        navigatiebalk, puzzel- en oplossingspagina
   book.py         cover, startscherm, hubs, dagplan, scorebord + PDF-opbouw

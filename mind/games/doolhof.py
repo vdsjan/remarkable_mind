@@ -6,9 +6,20 @@ of neighbouring cells without a wall between them. Every maze is *perfect*
 """
 import math
 
+from reportlab.lib.colors import HexColor
+
+from .. import theme
 from ..draw import circle, line, polyline, star, text
 from ..theme import INK, PEN, RED, WHITE
 from .base import Game
+
+ROUTE_GREY = HexColor("#9A9A9A")
+
+
+def route_style(lw):
+    """Line width and colour of the solved route. Without colour the route is
+    a broad light-grey band, so it cannot be mistaken for a wall."""
+    return (lw * 2.6, ROUTE_GREY) if theme.MONO else (lw, PEN)
 
 RECT = {1: (14, 14), 2: (20, 20)}     # (cols, rows)
 RINGS = 9                              # level 3
@@ -279,7 +290,8 @@ class Doolhof(Game):
                 r, col = divmod(i, cols)
                 pts.append((X(col) + cell / 2, Y(r) - cell / 2))
             pts.append((ex, Y(rows) - 2))
-            polyline(c, pts, lw=max(1.8, cell * 0.11), color=PEN)
+            lw, colour = route_style(max(1.8, cell * 0.11))
+            polyline(c, pts, lw=lw, color=colour)
 
     def _draw_circle(self, c, box, puz, solved):
         x, y, w, h = box
@@ -362,7 +374,8 @@ class Doolhof(Game):
                 pts.append(_polar(cx, cy, r2, cross))
                 r, a_pen = r2, cross
                 a_cell = turn(cross, a2)
-            polyline(c, pts, lw=2.2, color=PEN)
+            lw, colour = route_style(2.2)
+            polyline(c, pts, lw=lw, color=colour)
 
     def icon(self, c, cx, cy, s, color):
         h = s / 2

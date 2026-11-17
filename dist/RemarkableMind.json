@@ -2,6 +2,7 @@
 "title": "Remarkable Mind",
 "version": "1.0.0",
 "seed": 2026,
+"device": "paperpro",
 "pages": {
 "cover": 0,
 "home": 1,

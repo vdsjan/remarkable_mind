@@ -2,7 +2,8 @@
 
 The illustrations were generated on cream "riso paper". On a colour e-ink
 panel a cream background would be dithered, so the paper tone is mapped to
-pure white while the four inks keep their strength.
+pure white while the four inks keep their strength. Each asset also gets a
+greyscale twin (``*_grey.jpg``) for the monochrome reMarkable 2.
 
     python tools/prepare_assets.py
 """
@@ -36,6 +37,18 @@ def whiten(im):
     return Image.fromarray(np.clip(out, 0, 255).astype(np.uint8))
 
 
+def grey(im):
+    """Greyscale for the monochrome reMarkable 2.
+
+    A plain luminance conversion turns the red and the teal ink into the same
+    grey. This channel mix keeps the four inks apart: black, teal (dark),
+    red (middle) and mustard (light)."""
+    a = np.asarray(im.convert("RGB")).astype(np.float32)
+    g = 0.45 * a[..., 0] + 0.45 * a[..., 1] + 0.10 * a[..., 2]
+    g = 255.0 * (g / 255.0) ** 1.08          # a touch more contrast
+    return Image.fromarray(np.clip(g, 0, 255).astype(np.uint8), "L")
+
+
 def main():
     DST.mkdir(parents=True, exist_ok=True)
     for name, (src, width) in JOBS.items():
@@ -45,6 +58,9 @@ def main():
             im = im.resize((width, round(im.height * width / im.width)), Image.LANCZOS)
         out = DST / f"{name}.jpg"
         im.save(out, quality=88, optimize=True)
+        print(f"{out.relative_to(ROOT)}  {im.size}  {out.stat().st_size // 1024} kB")
+        out = DST / f"{name}_grey.jpg"
+        grey(im).save(out, quality=88, optimize=True)
         print(f"{out.relative_to(ROOT)}  {im.size}  {out.stat().st_size // 1024} kB")
 
 

@@ -7,6 +7,7 @@ import math
 
 from reportlab.pdfbase.pdfmetrics import stringWidth
 
+from . import theme
 from .theme import INK, WHITE, PEN, MID, GREY
 
 
@@ -15,7 +16,7 @@ def text(c, x, y, s, font="Sans", size=10, color=INK, align="l"):
     """Draw one line of text. align: 'l', 'c' or 'r' relative to x."""
     c.setFont(font, size)
     c.setFillColor(color)
-    s = str(s)
+    s = theme.localize(str(s))
     if align == "c":
         c.drawCentredString(x, y, s)
     elif align == "r":
@@ -33,7 +34,7 @@ def text_mid(c, cx, cy, s, font="SansS", size=12, color=INK):
 def wrap(s, font, size, width):
     """Greedy word wrap; returns a list of lines."""
     lines, cur = [], ""
-    for word in str(s).split():
+    for word in theme.localize(str(s)).split():
         trial = (cur + " " + word).strip()
         if stringWidth(trial, font, size) <= width or not cur:
             cur = trial

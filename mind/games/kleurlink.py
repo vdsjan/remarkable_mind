@@ -5,6 +5,9 @@ Puzzle dict:
     dots    [[r1, c1, r2, c2], ...]   one entry per colour (A, B, C, ...)
     paths   [[[r, c], ...], ...]      the unique solution, path k joins dots[k]
 """
+from reportlab.lib.colors import HexColor
+
+from .. import theme
 from ..draw import Grid, circle, line, polyline, text_mid
 from ..theme import INK, MUSTARD, PALETTE, WHITE
 from .base import Game
@@ -150,6 +153,9 @@ def _cover(rng, n):
     return paths
 
 
+MONO_LINES = (HexColor("#5C5C5C"), HexColor("#A2A2A2"))
+
+
 class Kleurlink(Game):
     key = "kleurlink"
     name = "Kleurlink"
@@ -206,17 +212,25 @@ class Kleurlink(Game):
         colour = PALETTE[k % len(PALETTE)]
         return colour, (INK if colour == MUSTARD else WHITE)
 
+    @staticmethod
+    def _line_ink(k):
+        """Colour of a solved path. On a monochrome screen neighbouring paths
+        alternate between two greys and the black dots keep the letters."""
+        if theme.MONO:
+            return MONO_LINES[k % 2]
+        return PALETTE[k % len(PALETTE)]
+
     def draw(self, c, box, puz, solved=False, part=0):
         n = puz["n"]
         g = Grid(box, n, n, max_cell=78)
         g.lines(c, lw=0.7, outer=2.0)
         if solved:
             for k, path in enumerate(puz["paths"]):
-                colour, _ = self._ink(k)
+                colour = self._line_ink(k)
                 pts = [(g.cx(col), g.cy(r)) for r, col in path]
                 polyline(c, pts, lw=g.cell * 0.26, color=colour)
         for k, (r1, c1, r2, c2) in enumerate(puz["dots"]):
-            colour, on = self._ink(k)
+            colour, on = (INK, WHITE) if theme.MONO else self._ink(k)
             for r, col in ((r1, c1), (r2, c2)):
                 circle(c, g.cx(col), g.cy(r), g.cell * 0.33, fill=colour, stroke=None)
                 text_mid(c, g.cx(col), g.cy(r), LETTERS[k], "SansB", g.cell * 0.36, on)

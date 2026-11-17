@@ -55,6 +55,58 @@ CATEGORY_ORDER = ["getallen", "logica", "ruimte", "taal"]
 
 LEVEL_NAMES = ("Opwarmen", "Pittig", "Meesterlijk")
 
+# --- device profiles ----------------------------------------------------------
+# Both tablets have a 3:4 screen, so the page geometry is shared. The
+# reMarkable 2 is monochrome: its profile maps every spot colour to a grey
+# that stays distinguishable on a 16-level e-ink panel, and swaps the few
+# texts and puzzles that rely on colour.
+DEVICES = {
+    "paperpro": {"label": "reMarkable Paper Pro", "screen": "11,8 inch, kleur",
+                 "px": (1620, 2160), "mono": False, "suffix": ""},
+    "rm2": {"label": "reMarkable 2", "screen": "10,3 inch, zwart-wit",
+            "px": (1404, 1872), "mono": True, "suffix": "-rM2"},
+}
+DEVICE = DEVICES["paperpro"]
+MONO = False
+
+_SPOT = {"RED": RED, "TEAL": TEAL, "MUSTARD": MUSTARD, "PEN": PEN,
+         "GREEN": GREEN, "PURPLE": PURPLE, "ORANGE": ORANGE}
+_COLOUR_RGB = {k: v.rgb() for k, v in _SPOT.items()}
+_GREY_HEX = {"RED": "#3C3C3C", "TEAL": "#787878", "MUSTARD": "#D0D0D0",
+             "PEN": "#505050", "GREEN": "#555555", "PURPLE": "#8C8C8C",
+             "ORANGE": "#A6A6A6"}
+_MONO_TEXT = [
+    ("van de rode pijl", "van de pijl"),
+    ("de gele vakjes", "de grijze vakjes"),
+    ("Verbind de kleuren en laat", "Verbind de letters en laat"),
+    ("met dezelfde letter en kleur", "met dezelfde letter"),
+    (" Pak er gerust de kleurpennen van je Paper Pro bij.", ""),
+    ("blauwe lucifer", "grijze lucifer"),
+]
+
+
+def set_device(name):
+    """Switch the whole book to a device profile ("paperpro" or "rm2").
+
+    The colour objects are changed in place, so every module that imported
+    them follows along."""
+    global DEVICE, MONO
+    DEVICE = DEVICES[name]
+    MONO = DEVICE["mono"]
+    for key, colour in _SPOT.items():
+        rgb = HexColor(_GREY_HEX[key]).rgb() if MONO else _COLOUR_RGB[key]
+        colour.red, colour.green, colour.blue = rgb
+    return DEVICE
+
+
+def localize(s):
+    """Text for the current device: drops references to colour on mono."""
+    if MONO and isinstance(s, str):
+        for old, new in _MONO_TEXT:
+            s = s.replace(old, new)
+    return s
+
+
 # --- fonts ------------------------------------------------------------------
 _FONTS = {
     "Serif": "Fraunces-600.ttf",

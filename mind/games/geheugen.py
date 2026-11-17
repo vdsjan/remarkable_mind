@@ -4,6 +4,9 @@ Part 0 is the study page, part 1 the question page. Three variants:
 coloured shapes in a grid, a list (shopping, to-do, packing) and a short
 scene full of names, times and numbers.
 """
+from reportlab.lib.colors import HexColor
+
+from .. import theme
 from ..draw import Grid, circle, line, rrect, star, text, text_mid, wrap
 from ..theme import GREEN, INK, MUSTARD, PEN, PURPLE, RED, WHITE
 from ._woorden import DAGEN, LIJSTEN, NAMEN, STEDEN, STRATEN
@@ -29,6 +32,13 @@ COLORS = {
     "zwart": (INK, "zwarte"),
     "paars": (PURPLE, "paarse"),
 }
+# On a monochrome screen the shapes come in three tones instead of colours.
+MONO_COLORS = {
+    "zwart": (INK, "zwarte"),
+    "grijs": (HexColor("#8E8E8E"), "grijze"),
+    "wit": (WHITE, "witte"),
+}
+ALL_COLORS = {**COLORS, **MONO_COLORS}
 SIZES = {1: (3, 4, 5, 5), 2: (4, 4, 6, 5), 3: (5, 4, 7, 6)}  # rows, cols, kinds, colours
 LIST_LEN = {1: 8, 2: 10, 3: 12}
 FACTS = {1: 4, 2: 5, 3: 6}
@@ -49,7 +59,7 @@ def ask_vormen(study, spec):
                 f"{cells[pos][0]}, {cells[pos][1]}")
     if kind == "telkleur":
         n = sum(1 for cell in cells if cell[1] == spec[1])
-        return f"Hoeveel {COLORS[spec[1]][1]} vormen waren er?", str(n)
+        return f"Hoeveel {ALL_COLORS[spec[1]][1]} vormen waren er?", str(n)
     if kind == "telvorm":
         return f"Hoeveel {SHAPES[spec[1]][1]} waren er?", str(count_shape(spec[1]))
     if kind == "kleurvan":
@@ -309,7 +319,11 @@ class Geheugen(Game):
         R, C, kinds, ncol = SIZES[level]
         n = R * C
         names = rng.sample(sorted(SHAPES), kinds)
-        colours = rng.sample(sorted(COLORS), ncol)
+        if theme.MONO:
+            colours = sorted(MONO_COLORS)
+            ncol = len(colours)
+        else:
+            colours = rng.sample(sorted(COLORS), ncol)
         uniq, rest = names[:2], names[2:]
         while True:
             fill = [rng.choice(rest) for _ in range(n - 2)]
@@ -320,6 +334,9 @@ class Geheugen(Game):
         palette = [colours[i % ncol] for i in range(n)]     # evenly spread
         rng.shuffle(palette)
         cells = [[s, k] for s, k in zip(shapes, palette)]
+        for cell in cells:                  # a white crescent cannot be outlined
+            if cell == ["maan", "wit"]:
+                cell[1] = "grijs"
         study = {"rows": R, "cols": C, "cells": cells}
         absent = [s for s in sorted(SHAPES) if s not in names]
         options = rng.sample(rest, 2) + [rng.choice(absent)]
@@ -397,7 +414,7 @@ class Geheugen(Game):
         assert len({q for q, _ in puz["questions"]}) == len(puz["questions"])
         if variant == "vormen":
             assert len(study["cells"]) == study["rows"] * study["cols"]
-            assert all(s in SHAPES and k in COLORS for s, k in study["cells"])
+            assert all(s in SHAPES and k in ALL_COLORS for s, k in study["cells"])
         elif variant == "lijst":
             assert len(set(study["items"])) == len(study["items"]) >= 8
         else:
@@ -428,7 +445,12 @@ class Geheugen(Game):
                 r, col = divmod(i, C)
                 rx, ry, s, _ = g.rect(r, col)
                 rrect(c, rx + 4, ry + 4, s - 8, s - 8, 10, stroke=INK, lw=1.1)
-                draw_shape(c, shape, g.cx(col), g.cy(r), s * 0.27, COLORS[colour][0])
+                if colour == "wit":         # outline: ink shape, white inside
+                    draw_shape(c, shape, g.cx(col), g.cy(r), s * 0.27, INK)
+                    draw_shape(c, shape, g.cx(col), g.cy(r), s * 0.27 * 0.74, WHITE)
+                else:
+                    draw_shape(c, shape, g.cx(col), g.cy(r), s * 0.27,
+                               ALL_COLORS[colour][0])
             return
         pad = 22
         rrect(c, x + 8, y + 8, w - 16, h - 16, 14, stroke=INK, lw=1.6)
