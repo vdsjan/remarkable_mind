@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Remarkable Mind · Hersengym op papier</title>
+  <meta name="description" content="Stel je eigen puzzelboek samen voor de reMarkable Paper Pro, Paper Pro Move of reMarkable 2. Sudoku, logigram, doolhof, codekraker en twaalf andere hersenspellen in één interactieve PDF, gemaakt in je eigen browser.">
+  <meta name="theme-color" content="#F6F1E6">
+  <meta property="og:title" content="Remarkable Mind · Hersengym op papier">
+  <meta property="og:description" content="16 hersenspellen, jouw selectie, één PDF voor je reMarkable. 100% offline.">
+  <meta property="og:image" content="/img/hero.webp">
+  <link rel="icon" href="/img/icons/sudoku.png">
+  <link rel="preload" href="/fonts/Fraunces-900.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/Inter-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/css/site.css">
+  <script type="module" src="/js/app.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="wordmark" href="#top" aria-label="Remarkable Mind, naar boven">
+      <span class="wm-title">Remarkable Mind</span>
+      <span class="wm-sub">Hersengym op papier</span>
+    </a>
+    <nav class="topnav" aria-label="Hoofdmenu">
+      <a href="#maak">Maak je boek</a>
+      <a href="#klaar">Kant-en-klaar</a>
+      <a href="#film">Film</a>
+      <a href="#zo">Op je tablet</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-text">
+        <p class="kicker">Voor reMarkable Paper Pro · Paper Pro Move · reMarkable 2</p>
+        <h1>Jouw eigen hersengym, <em>op papier.</em></h1>
+        <p class="lead">Kies je toestel, je favoriete spellen en hoeveel puzzels je wil. Je browser maakt er een interactief puzzelboek van: tik om te bladeren, los op met je pen. Geen app, geen account, geen meldingen.</p>
+        <div class="hero-cta">
+          <a class="btn btn-ink" href="#maak">Stel je boek samen</a>
+          <a class="btn" href="#klaar">Download het complete boek</a>
+        </div>
+        <ul class="facts">
+          <li><strong>16</strong> spellen</li>
+          <li><strong>3</strong> niveaus</li>
+          <li><strong>1</strong> oplossing per puzzel</li>
+          <li><strong>100%</strong> offline</li>
+        </ul>
+      </div>
+      <figure class="hero-art">
+        <img src="/img/cover.webp" alt="Risografie-illustratie: een hoofd vol doolhoven, puzzelstukjes en een sudoku" width="900" height="1200">
+      </figure>
+    </section>
+
+    <section id="maak" class="builder" aria-labelledby="maak-titel">
+      <div class="section-head">
+        <p class="kicker">In drie stappen</p>
+        <h2 id="maak-titel">Maak je eigen puzzelboek</h2>
+        <p>Alles gebeurt in je eigen browser: de puzzelgenerator draait hier lokaal, er gaat niets naar een server.</p>
+      </div>
+
+      <div class="builder-grid">
+        <div class="steps">
+          <section class="step" aria-labelledby="stap1">
+            <h3 id="stap1"><span class="num">1</span> Kies je toestel</h3>
+            <div class="devices" id="devices" role="radiogroup" aria-label="Toestel"></div>
+          </section>
+
+          <section class="step" aria-labelledby="stap2">
+            <h3 id="stap2"><span class="num">2</span> Kies je spellen</h3>
+            <div class="presets" id="presets" aria-label="Snelle keuzes"></div>
+            <div class="categories" id="categories"></div>
+          </section>
+
+          <section class="step" aria-labelledby="stap3">
+            <h3 id="stap3"><span class="num">3</span> Fijnregelen</h3>
+            <div class="options">
+              <fieldset class="field">
+                <legend>Moeilijkheid</legend>
+                <div class="segmented" id="difficulty" role="radiogroup" aria-label="Moeilijkheid"></div>
+              </fieldset>
+              <div class="field toggles">
+                <label class="toggle"><input type="checkbox" id="opt-plan" checked><span class="track"></span><span><strong>Dagplan</strong><small>elke dag één puzzel per denkspier, tot 30 dagen</small></span></label>
+                <label class="toggle"><input type="checkbox" id="opt-solutions" checked><span class="track"></span><span><strong>Oplossingen</strong><small>achteraan, één tik van elke puzzel</small></span></label>
+              </div>
+              <div class="field">
+                <label for="opt-seed"><strong>Editienummer</strong><small>zelfde nummer = zelfde puzzels</small></label>
+                <div class="seed">
+                  <input id="opt-seed" type="number" inputmode="numeric" min="1" max="999999" value="2026">
+                  <button type="button" class="btn btn-small" id="seed-dice" aria-label="Willekeurig editienummer">Verras me</button>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <aside class="summary" aria-live="polite">
+          <div class="summary-card">
+            <p class="kicker">Jouw boek</p>
+            <p class="summary-device" id="sum-device">reMarkable Paper Pro</p>
+            <dl class="summary-stats">
+              <div><dt>Puzzels</dt><dd id="sum-puzzles">0</dd></div>
+              <div><dt>Spellen</dt><dd id="sum-games">0</dd></div>
+              <div><dt>Pagina's</dt><dd id="sum-pages">0</dd></div>
+            </dl>
+            <p class="summary-note" id="sum-note"></p>
+            <button type="button" class="btn btn-ink btn-big" id="make">Maak mijn PDF</button>
+            <div class="progress" id="progress" hidden>
+              <ol class="progress-steps">
+                <li data-stage="engine"><span>Rekenmotor laden</span><small>eenmalig ±14 MB, daarna uit de cache</small></li>
+                <li data-stage="puzzels"><span>Puzzels bedenken en nakijken</span><small id="p-puz"></small></li>
+                <li data-stage="pagina's"><span>Pagina's tekenen</span><small id="p-pag"></small></li>
+              </ol>
+              <div class="bar"><div class="fill" id="p-fill"></div></div>
+            </div>
+            <div class="result" id="result" hidden>
+              <p class="result-title">Je boek is klaar!</p>
+              <p class="result-meta" id="result-meta"></p>
+              <a class="btn btn-red btn-big" id="download" download>Download PDF</a>
+              <p class="result-hint">Zet het bestand op je reMarkable: <a href="#zo">zo doe je dat</a>.</p>
+            </div>
+            <p class="error" id="error" role="alert" hidden></p>
+          </div>
+          <p class="privacy">🔒 Gemaakt op jouw toestel. Geen upload, geen tracking.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section id="klaar" class="ready" aria-labelledby="klaar-titel">
+      <div class="section-head">
+        <p class="kicker">Liever meteen beginnen?</p>
+        <h2 id="klaar-titel">Het complete boek, kant-en-klaar</h2>
+        <p>Alle 16 spellen, 400 puzzels, een dagplan van 30 dagen en alle oplossingen. Editie 2026.</p>
+      </div>
+      <div class="ready-grid" id="ready"></div>
+    </section>
+
+    <section id="film" class="film" aria-labelledby="film-titel">
+      <div class="section-head">
+        <p class="kicker">66 seconden</p>
+        <h2 id="film-titel">De film</h2>
+      </div>
+      <video controls preload="none" poster="/img/poster.webp" playsinline>
+        <source src="/media/remarkable-mind.mp4" type="video/mp4">
+      </video>
+    </section>
+
+    <section id="zo" class="install" aria-labelledby="zo-titel">
+      <div class="section-head">
+        <p class="kicker">Nog één stap</p>
+        <h2 id="zo-titel">Zo zet je het op je reMarkable</h2>
+      </div>
+      <ol class="install-steps">
+        <li><span class="num">1</span><h3>Kies een weg</h3><p>Sleep de PDF in de reMarkable-app op je computer of telefoon, of upload hem via <a href="https://my.remarkable.com" rel="noopener">my.remarkable.com</a>. Via USB kan ook: zet in de instellingen de <em>USB web interface</em> aan en surf naar <code>http://10.11.99.1</code>.</p></li>
+        <li><span class="num">2</span><h3>Open het boek</h3><p>Verberg de werkbalk zodat de pagina het hele scherm vult, en tik op <em>Tik om te starten</em>.</p></li>
+        <li><span class="num">3</span><h3>Tikken en schrijven</h3><p>Tik met je vinger op de knoppen om te bladeren, schrijf met de pen. Je inkt staat los van het boek: wis of gebruik een nieuwe laag om opnieuw te beginnen.</p></li>
+      </ol>
+    </section>
+
+    <section class="how" aria-labelledby="how-titel">
+      <div class="how-grid">
+        <div>
+          <h2 id="how-titel">Hoe werkt dit?</h2>
+          <p>Remarkable Mind is een puzzelgenerator in Python. Op deze site draait diezelfde generator in je browser, via WebAssembly. Elke logische puzzel wordt door een solver nagerekend: er is altijd precies één oplossing.</p>
+          <p>Na het eerste bezoek blijft de rekenmotor in je browser bewaard. Een nieuw boek maken lukt dan ook zonder internet.</p>
+        </div>
+        <ul class="cats-art" id="cats-art"></ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p><strong>Remarkable Mind</strong> · <span id="version"></span> · illustraties, film, stem en muziek gemaakt met ElevenLabs · letters: Fraunces, Inter en Caveat (SIL OFL).</p>
+    <p>reMarkable is een merk van reMarkable AS. Dit is een onafhankelijk project, niet verbonden met of goedgekeurd door reMarkable AS.</p>
+  </footer>
+</body>
+</html>

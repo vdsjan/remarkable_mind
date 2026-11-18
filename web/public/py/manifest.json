@@ -1,0 +1,290 @@
+{
+ "version": "1.0.0",
+ "app": "py/app.d4cfc485c1af.zip",
+ "pyodide": "314.0.8",
+ "packages": [
+  "pillow"
+ ],
+ "python": "3.14.2",
+ "maxPerGame": 30,
+ "difficulties": {
+  "mix": "Oplopend",
+  "1": "Opwarmen",
+  "2": "Pittig",
+  "3": "Meesterlijk"
+ },
+ "categories": [
+  {
+   "key": "getallen",
+   "name": "Getallen",
+   "blurb": "Rekenen, tellen en combineren",
+   "color": "#D8432B"
+  },
+  {
+   "key": "logica",
+   "name": "Logica",
+   "blurb": "Redeneren zonder te gokken",
+   "color": "#0F7F86"
+  },
+  {
+   "key": "ruimte",
+   "name": "Ruimte",
+   "blurb": "Kijken, draaien en verbinden",
+   "color": "#E2A019"
+  },
+  {
+   "key": "taal",
+   "name": "Taal & Geheugen",
+   "blurb": "Woorden, codes en onthouden",
+   "color": "#141414"
+  }
+ ],
+ "games": [
+  {
+   "key": "sudoku",
+   "name": "Sudoku",
+   "category": "getallen",
+   "tagline": "De klassieker: negen cijfers, één oplossing.",
+   "parts": 1,
+   "rules": [
+    "Vul elk leeg vakje met een cijfer van 1 tot 9.",
+    "In elke rij, elke kolom en elk blok van 3 × 3 komt elk cijfer precies één keer voor.",
+    "Gokken hoeft nooit: elke puzzel heeft exact één oplossing."
+   ]
+  },
+  {
+   "key": "calcudoku",
+   "name": "Calcudoku",
+   "category": "getallen",
+   "tagline": "Sudoku ontmoet hoofdrekenen.",
+   "parts": 1,
+   "rules": [
+    "Vul het rooster met de cijfers 1 tot en met de roosterbreedte.",
+    "In elke rij en elke kolom komt elk cijfer precies één keer voor.",
+    "De cijfers in een dik omlijnd vak leveren met de bewerking het getal in de hoek op. Bij − en ÷ mag de volgorde vrij gekozen worden.",
+    "Een vak van één cel is al ingevuld."
+   ]
+  },
+  {
+   "key": "piramide",
+   "name": "Rekenpiramide",
+   "category": "getallen",
+   "tagline": "Stapel sommen tot de top klopt.",
+   "parts": 1,
+   "rules": [
+    "Elke steen is de som van de twee stenen waar hij op rust.",
+    "Vul alle lege stenen in met positieve gehele getallen.",
+    "Soms tel je op naar boven, soms trek je af naar beneden."
+   ]
+  },
+  {
+   "key": "reeksen",
+   "name": "Getallenreeksen",
+   "category": "getallen",
+   "tagline": "Ontdek de regel, vind het ontbrekende getal.",
+   "parts": 1,
+   "rules": [
+    "Elke rij getallen volgt een vaste regel.",
+    "Zoek de regel en schrijf het getal op dat op de plaats van het vraagteken hoort.",
+    "De regel kan optellen, aftrekken, vermenigvuldigen of een mix daarvan zijn."
+   ]
+  },
+  {
+   "key": "binairo",
+   "name": "Binairo",
+   "category": "logica",
+   "tagline": "Alleen nullen en enen, en toch verrassend lastig.",
+   "parts": 1,
+   "rules": [
+    "Vul elk leeg vakje met een 0 of een 1.",
+    "Er staan nooit meer dan twee dezelfde cijfers naast of onder elkaar.",
+    "In elke rij en elke kolom staan evenveel nullen als enen.",
+    "Geen twee rijen zijn gelijk, en geen twee kolommen zijn gelijk."
+   ]
+  },
+  {
+   "key": "wolkenkrabbers",
+   "name": "Wolkenkrabbers",
+   "category": "logica",
+   "tagline": "Bouw een skyline en kijk wie achter wie verdwijnt.",
+   "parts": 1,
+   "rules": [
+    "In elk vakje staat een gebouw; het cijfer is de hoogte in verdiepingen.",
+    "In elke rij en elke kolom komt elke hoogte precies één keer voor.",
+    "Een cijfer buiten het rooster zegt hoeveel gebouwen je vanaf die kant ziet: hogere gebouwen verbergen de lagere erachter."
+   ]
+  },
+  {
+   "key": "logigram",
+   "name": "Logigram",
+   "category": "logica",
+   "tagline": "Wie hoort bij wat? Speel detective met een handvol aanwijzingen.",
+   "parts": 1,
+   "rules": [
+    "Elke persoon hoort bij precies één item uit elke andere categorie, en elk item hoort bij precies één persoon.",
+    "Lees de aanwijzingen en noteer in het rooster wat zeker niet kan (kruisje) en wat zeker wel klopt (bolletje).",
+    "Alle aanwijzingen samen laten precies één oplossing over."
+   ]
+  },
+  {
+   "key": "bruggen",
+   "name": "Bruggen",
+   "category": "logica",
+   "tagline": "Verbind alle eilanden tot één geheel.",
+   "parts": 1,
+   "rules": [
+    "Verbind de eilanden met rechte bruggen, horizontaal of verticaal.",
+    "Het getal op een eiland is het aantal bruggen dat er vertrekt; tussen twee eilanden liggen hoogstens twee bruggen.",
+    "Bruggen kruisen elkaar nooit en lopen niet over een ander eiland.",
+    "Op het einde is elk eiland via bruggen bereikbaar vanaf elk ander eiland."
+   ]
+  },
+  {
+   "key": "doolhof",
+   "name": "Doolhof",
+   "category": "ruimte",
+   "tagline": "Eén weg leidt naar het doel. Vind hem zonder vast te lopen.",
+   "parts": 1,
+   "rules": [
+    "Teken met je pen de weg van de rode pijl naar de ster.",
+    "Je mag nergens door een muur gaan.",
+    "Er is precies één route; alle andere gangen lopen dood."
+   ]
+  },
+  {
+   "key": "nonogram",
+   "name": "Japanse puzzel",
+   "category": "ruimte",
+   "tagline": "Kleur de juiste vakjes en ontdek de tekening.",
+   "parts": 1,
+   "rules": [
+    "De getallen naast een rij en boven een kolom geven aan hoe lang de groepjes gekleurde vakjes zijn, in de juiste volgorde.",
+    "Tussen twee groepjes in dezelfde rij of kolom staat minstens één leeg vakje.",
+    "Kleur een vakje dat zeker gevuld is; zet een puntje of kruisje in een vakje dat zeker leeg blijft."
+   ]
+  },
+  {
+   "key": "kleurlink",
+   "name": "Kleurlink",
+   "category": "ruimte",
+   "tagline": "Verbind de kleuren en laat geen vakje leeg.",
+   "parts": 1,
+   "rules": [
+    "Verbind de twee stippen met dezelfde letter en kleur door een lijn van vakje naar vakje, horizontaal of verticaal.",
+    "Lijnen kruisen of raken elkaar nooit: in elk vakje loopt precies één lijn.",
+    "Alle vakjes van het rooster worden gebruikt."
+   ]
+  },
+  {
+   "key": "lucifers",
+   "name": "Lucifers",
+   "category": "ruimte",
+   "tagline": "De som klopt niet. Eén lucifer verleggen en ze klopt wel.",
+   "parts": 1,
+   "rules": [
+    "De som in lucifers is fout. Verplaats precies het gevraagde aantal lucifers zodat ze klopt.",
+    "Je mag geen lucifers wegnemen of bijleggen, en het =-teken blijft staan.",
+    "Elk cijfer blijft een geldig cijfer; van een + mag je een − maken en omgekeerd."
+   ]
+  },
+  {
+   "key": "woordzoeker",
+   "name": "Woordzoeker",
+   "category": "taal",
+   "tagline": "Speur alle woorden op en ontdek de verborgen oplossing.",
+   "parts": 1,
+   "rules": [
+    "Zoek alle woorden uit de lijst in het letterveld en streep ze door.",
+    "Woorden staan horizontaal, verticaal of diagonaal; op de hogere niveaus ook achterstevoren.",
+    "Letters mogen in meer dan één woord gebruikt worden.",
+    "De overgebleven letters vormen, van links naar rechts gelezen, de oplossing."
+   ]
+  },
+  {
+   "key": "codekraker",
+   "name": "Codekraker",
+   "category": "taal",
+   "tagline": "Elk cijfer is een letter. Kraak de code en lees het spreekwoord.",
+   "parts": 1,
+   "rules": [
+    "Elk getal staat voor één vaste letter; dezelfde letter heeft overal hetzelfde getal.",
+    "Enkele letters zijn al ingevuld. Vul de rest in tot er een bekend Nederlands spreekwoord staat.",
+    "Hou in de sleutel onderaan bij welk getal bij welke letter hoort."
+   ]
+  },
+  {
+   "key": "letterchaos",
+   "name": "Letterchaos",
+   "category": "taal",
+   "tagline": "De letters liggen door elkaar. Welke woorden zitten erin?",
+   "parts": 1,
+   "rules": [
+    "Elke rij is een woord uit het thema, maar de letters staan door elkaar.",
+    "Zet de letters in de juiste volgorde en schrijf het woord in de vakjes.",
+    "De letters in de gele vakjes vormen van boven naar beneden het bonuswoord."
+   ]
+  },
+  {
+   "key": "geheugen",
+   "name": "Geheugentraining",
+   "category": "taal",
+   "tagline": "Kijk, onthoud, blader om en test wat je nog weet.",
+   "parts": 2,
+   "rules": [
+    "Bekijk de eerste pagina een minuut lang heel aandachtig.",
+    "Tik op Verder en beantwoord de vragen uit je hoofd, zonder terug te bladeren.",
+    "Controleer daarna je antwoorden op de oplossingspagina."
+   ]
+  }
+ ],
+ "devices": [
+  {
+   "key": "paperpro",
+   "label": "reMarkable Paper Pro",
+   "screen": "11,8 inch, kleur",
+   "px": [
+    1620,
+    2160
+   ],
+   "mono": false,
+   "suffix": "",
+   "download": {
+    "file": "downloads/RemarkableMind.pdf",
+    "mb": 4.9,
+    "pages": 849
+   }
+  },
+  {
+   "key": "move",
+   "label": "reMarkable Paper Pro Move",
+   "screen": "7,3 inch, kleur",
+   "px": [
+    954,
+    1696
+   ],
+   "mono": false,
+   "suffix": "-Move",
+   "download": {
+    "file": "downloads/RemarkableMind-Move.pdf",
+    "mb": 5.1,
+    "pages": 855
+   }
+  },
+  {
+   "key": "rm2",
+   "label": "reMarkable 2",
+   "screen": "10,3 inch, zwart-wit",
+   "px": [
+    1404,
+    1872
+   ],
+   "mono": true,
+   "suffix": "-rM2",
+   "download": {
+    "file": "downloads/RemarkableMind-rM2.pdf",
+    "mb": 4.6,
+    "pages": 849
+   }
+  }
+ ]
+}

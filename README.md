@@ -1,13 +1,15 @@
 # Remarkable Mind
 
-**Hersengym op papier** — 16 hersenspellen, 400 puzzels en een trainingsplan van 30 dagen, volledig offline op de reMarkable Paper Pro (kleur) en de reMarkable 2 (zwart-wit).
+**Hersengym op papier** — 16 hersenspellen, 400 puzzels en een trainingsplan van 30 dagen, volledig offline op de reMarkable Paper Pro (kleur), de Paper Pro Move (kleur, 7,3") en de reMarkable 2 (zwart-wit).
 
 ![Cover, startscherm en een puzzel](docs/screens.jpg)
 
 | | |
 |---|---|
 | **De app voor de Paper Pro** | [`dist/RemarkableMind.pdf`](dist/RemarkableMind.pdf) — kleur, 849 pagina's, 6.020 tikbare links, 4,9 MB |
+| **De app voor de Paper Pro Move** | [`dist/RemarkableMind-Move.pdf`](dist/RemarkableMind-Move.pdf) — kleur, pagina's in 9:16, 855 pagina's, 5,1 MB |
 | **De app voor de reMarkable 2** | [`dist/RemarkableMind-rM2.pdf`](dist/RemarkableMind-rM2.pdf) — grijstinten, zelfde 400 puzzels, 4,6 MB |
+| **De website** | [`web/public`](web/public) — stel je eigen boek samen in de browser, gehost op Cloudflare (zie [De website](#de-website)) |
 | **De promofilm** | [`promo/RemarkableMind-promo.mp4`](promo/RemarkableMind-promo.mp4) — 66 seconden, Nederlands gesproken |
 
 ## Wat is het?
@@ -32,12 +34,28 @@ zonder account en zonder netwerk.
 - **Oplossingen achteraan**, bereikbaar via de knop *Oplossing* op elke puzzel,
   in blauw "handschrift".
 
-## Paper Pro of reMarkable 2?
+## Welk toestel?
 
-Beide toestellen hebben een scherm in verhouding 3:4, dus de pagina's vullen
-op allebei het hele scherm. De reMarkable 2 toont geen kleur; zijn editie is
-daarom apart opgebouwd in grijstinten die op het scherm van elkaar te
-onderscheiden blijven:
+Elke editie heeft pagina's in exact de verhouding van het scherm, zodat ze het
+hele scherm vullen:
+
+| | Paper Pro | Paper Pro Move | reMarkable 2 |
+|---|---|---|---|
+| Scherm | 11,8 inch, kleur | 7,3 inch, kleur | 10,3 inch, zwart-wit |
+| Resolutie | 1620 × 2160 (3:4) | 954 × 1696 (9:16) | 1404 × 1872 (3:4) |
+| Bestand | `RemarkableMind.pdf` | `RemarkableMind-Move.pdf` | `RemarkableMind-rM2.pdf` |
+
+**Paper Pro Move.** Het smalle 9:16-scherm krijgt een eigen, compactere
+opmaak: een navigatiebalk met pictogrammen, tegels in twee kolommen, en de
+uitleg, het dagplan en het scorebord verdeeld over meer pagina's. Vier spellen
+maken er kleinere varianten zodat de vakjes groot genoeg blijven om in te
+schrijven: de Japanse puzzel (15×15 in plaats van 20×20), het logigram (3 in
+plaats van 4 categorieën op niveau 3), de woordzoeker (tot 12×12) en
+Letterchaos (minder en kortere woorden).
+
+**reMarkable 2.** Dit toestel toont geen kleur; zijn editie is daarom apart
+opgebouwd in grijstinten die op het scherm van elkaar te onderscheiden
+blijven:
 
 ![De reMarkable 2-editie in grijstinten](docs/screens-rm2.jpg)
 
@@ -58,8 +76,10 @@ van naar kleuren. Door het kleinere scherm is alles op de reMarkable 2 ongeveer
 
 ## Op je reMarkable zetten
 
-1. Download [`dist/RemarkableMind.pdf`](dist/RemarkableMind.pdf) (Paper Pro)
-   of [`dist/RemarkableMind-rM2.pdf`](dist/RemarkableMind-rM2.pdf) (reMarkable 2).
+1. Download [`dist/RemarkableMind.pdf`](dist/RemarkableMind.pdf) (Paper Pro),
+   [`dist/RemarkableMind-Move.pdf`](dist/RemarkableMind-Move.pdf) (Paper Pro Move)
+   of [`dist/RemarkableMind-rM2.pdf`](dist/RemarkableMind-rM2.pdf) (reMarkable 2),
+   of stel je eigen boek samen op de website.
 2. Sleep het bestand in de reMarkable-app (desktop of mobiel), of zet het
    over via USB (in *Settings → Storage* de *USB web interface* aanzetten en
    in je browser naar `http://10.11.99.1` gaan).
@@ -80,18 +100,26 @@ pip install -r requirements.txt
 python -m mind.book --seed 2027 --out dist/RemarkableMind-2027.pdf
 ```
 
-Dezelfde editie voor de reMarkable 2:
+Dezelfde editie voor de reMarkable 2 (`--device rm2`) of de Paper Pro Move
+(`--device move`):
 
 ```bash
 python -m mind.book --seed 2027 --device rm2 --out dist/RemarkableMind-2027-rM2.pdf
+```
+
+Een eigen selectie: kies spellen en aantallen, één niveau, zonder dagplan of
+oplossingen:
+
+```bash
+python -m mind.book --device move --games sudoku:10,doolhof:6,codekraker:4 --difficulty 2 --no-plan
 ```
 
 ```bash
 python -m pytest -q
 ```
 
-Eén spel bekijken op schermresolutie (voeg `--device rm2` toe voor de
-reMarkable 2):
+Eén spel bekijken op schermresolutie (voeg `--device move` of `--device rm2`
+toe voor de andere toestellen):
 
 ```bash
 python -m mind.preview sudoku --out build/preview
@@ -108,14 +136,72 @@ mind/
   games/          één module per spel: generate(), verify(), draw(), icon()
   assets/         e-ink-versies van de illustraties
   fonts/          Fraunces, Inter, Caveat (SIL OFL)
-tests/            per spel: geldig, uniek, deterministisch; plus de navigatie
+tests/            per spel: geldig, uniek, deterministisch; plus navigatie,
+                  toestellen en de websitebundel
 promo/            artwork, clips, voice-over, muziek en make_film.py
-tools/            prepare_assets.py
+web/public/       de website (statische bestanden, zie hieronder)
+tools/            prepare_assets.py, build_web.py
+wrangler.jsonc    Cloudflare-configuratie van de website
 ```
 
 Een nieuw spel toevoegen is één bestand in `mind/games/` dat de klasse `Game`
 uit `mind/games/base.py` invult, plus de sleutel in `ORDER` in
 `mind/games/__init__.py`.
+
+## De website
+
+Op de website stel je je eigen boek samen: kies je toestel, per spel hoeveel
+puzzels (0 tot 30), het niveau, en of je een dagplan en oplossingen wil.
+Daarna download je de PDF.
+
+**Alles draait in de browser.** De Python-generator uit `mind/` loopt via
+[Pyodide](https://pyodide.org) (Python in WebAssembly) in een Web Worker op het
+toestel van de bezoeker. Er is dus geen server, geen upload en geen
+wachtrij, en het boek is identiek aan dat van `python -m mind.book`. Het
+volledige boek van 400 puzzels is in ongeveer 13 seconden klaar, een kleine
+selectie in 2 à 3 seconden. Een service worker bewaart de rekenmotor, zodat
+de site na het eerste bezoek ook offline werkt.
+
+| Bestand | Wat |
+|---|---|
+| `web/public/index.html`, `css/`, `js/app.js` | de interface |
+| `web/public/js/engine.js` | Web Worker: laadt Pyodide, Pillow en de generator, bouwt de PDF |
+| `web/public/pyodide/` | zelf gehoste Pyodide-runtime met de Pillow-wheel |
+| `web/public/py/` | `app.<hash>.zip` (de `mind`-package + reportlab) en `manifest.json` |
+| `web/public/downloads/` | de drie kant-en-klare edities |
+| `wrangler.jsonc` | Cloudflare Worker die alleen deze statische bestanden serveert |
+
+Na een wijziging in `mind/` bouw je de site opnieuw (de test
+`tests/test_web.py` faalt zolang de bundel achterloopt):
+
+```bash
+python tools/build_web.py
+```
+
+Lokaal draaien met dezelfde runtime als Cloudflare:
+
+```bash
+npm install
+```
+
+```bash
+npx wrangler dev
+```
+
+### Op Cloudflare zetten
+
+Alle bestanden staan al in de repo; Cloudflare hoeft niets te bouwen. Koppel de
+repo eenmalig aan Workers Builds, daarna deployt Cloudflare bij elke push:
+
+1. Ga in het [Cloudflare-dashboard](https://dash.cloudflare.com/?to=/:account/workers-and-pages/create)
+   naar **Workers & Pages → Create application → Import a repository**.
+2. Kies GitHub en de repo `vdsjan/remarkable_mind`.
+3. Projectnaam: **`remarkable-mind`** (moet gelijk zijn aan `name` in
+   `wrangler.jsonc`). Build command: leeg. Deploy command: `npx wrangler deploy`.
+4. Kies de branch waarvan je wil deployen en klik **Save and Deploy**.
+
+De site staat daarna op `https://remarkable-mind.<jouw-subdomein>.workers.dev`.
+Met een API-token kan het ook rechtstreeks: `npx wrangler deploy`.
 
 ## De promofilm
 

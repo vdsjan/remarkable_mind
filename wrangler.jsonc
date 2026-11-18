@@ -1,0 +1,14 @@
+{
+  // Remarkable Mind website: a Worker that only serves static assets.
+  // The puzzle generator runs in the visitor's browser (Pyodide), so there
+  // is no server code. Deploy: `npx wrangler deploy`, or connect this repo
+  // to Workers Builds in the Cloudflare dashboard (deploy command:
+  // `npx wrangler deploy`, no build command needed).
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "remarkable-mind",
+  "compatibility_date": "2026-11-18",
+  "assets": {
+    "directory": "./web/public",
+    "not_found_handling": "404-page"
+  }
+}

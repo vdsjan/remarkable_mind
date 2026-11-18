@@ -1,0 +1,13 @@
+{
+  "name": "remarkable-mind",
+  "private": true,
+  "description": "Remarkable Mind website: static assets served by a Cloudflare Worker",
+  "scripts": {
+    "build:web": "python3 tools/build_web.py",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.164.0"
+  }
+}
