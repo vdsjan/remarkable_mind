@@ -150,6 +150,8 @@ uit `mind/games/base.py` invult, plus de sleutel in `ORDER` in
 
 ## De website
 
+![De website: kies je toestel, je spellen en het aantal puzzels](docs/website.jpg)
+
 Op de website stel je je eigen boek samen: kies je toestel, per spel hoeveel
 puzzels (0 tot 30), het niveau, en of je een dagplan en oplossingen wil.
 Daarna download je de PDF.
