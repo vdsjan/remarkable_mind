@@ -59,3 +59,45 @@ def test_avoid_skips_used_pictures():
     used = set(n.ICONS_10)
     puz = GAME.generate(random.Random("avoid"), 1, avoid=used)
     assert puz["pic"] == ""
+
+
+# --- reMarkable Paper Pro Move (9:16, compact) ---------------------------------
+def test_move_device_generates_and_renders():
+    import io
+    import random as _random
+
+    from reportlab.pdfgen import canvas as _canvas
+
+    from mind import theme
+    from mind.games.nonogram import GAME as _GAME
+    from mind.theme import register_fonts
+
+    register_fonts()
+    theme.set_device("move")
+    try:
+        assert theme.COMPACT
+        for level in (1, 2, 3):
+            for seed in range(3):
+                puz = _GAME.generate(_random.Random(f"move-{seed}"), level)
+                _GAME.verify(puz)
+                c = _canvas.Canvas(io.BytesIO(), pagesize=(theme.W, theme.H))
+                for solved in (False, True):
+                    _GAME.draw(c, theme.PLAY_BOX, puz, solved=solved)
+                    c.showPage()
+                c.save()
+    finally:
+        theme.set_device("paperpro")
+
+
+def test_move_level3_is_15_by_15_and_paper_pro_stays_20():
+    import random as _random
+
+    from mind import theme
+    from mind.games.nonogram import GAME as _GAME
+
+    assert _GAME.generate(_random.Random("n"), 3)["size"] == 20
+    theme.set_device("move")
+    try:
+        assert _GAME.generate(_random.Random("n"), 3)["size"] == 15
+    finally:
+        theme.set_device("paperpro")

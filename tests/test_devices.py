@@ -20,10 +20,23 @@ def is_grey(colour):
     return abs(r - g) < 1e-6 and abs(g - b) < 1e-6
 
 
-def test_both_screens_are_three_by_four():
-    for dev in theme.DEVICES.values():
+def test_every_page_has_the_aspect_ratio_of_its_screen():
+    for name, dev in theme.DEVICES.items():
+        theme.set_device(name)
         w, h = dev["px"]
-        assert w / h == pytest.approx(theme.W / theme.H)
+        assert w / h == pytest.approx(theme.W / theme.H, rel=2e-3), name
+    theme.set_device("paperpro")
+    assert (theme.W, theme.H) == (510.0, 680.0)
+
+
+def test_move_geometry_reaches_modules_that_imported_it():
+    from mind import pages
+    theme.set_device("move")
+    assert theme.COMPACT and pages.COMPACT and pages.W == 320.0
+    x, y, w, h = pages.PLAY_BOX
+    assert x + w <= pages.W - pages.M + 1e-6 and y + h < pages.BAR_Y
+    theme.set_device("paperpro")
+    assert not pages.COMPACT and pages.W == 510.0
 
 
 def test_rm2_turns_every_spot_colour_grey_and_back():

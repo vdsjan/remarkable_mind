@@ -78,8 +78,9 @@ def test_solutions_come_after_all_puzzles(built):
 def test_outline_lists_the_games(built):
     _, doc, _ = built
     titles = [t[1] for t in doc.get_toc()]
-    assert {"Startscherm", "30 dagen hersengym", "Sudoku", "Doolhof",
-            "Oplossingen"} <= set(titles)
+    assert {"Startscherm", "Sudoku", "Doolhof", "Oplossingen"} <= set(titles)
+    # one game per category: 25 puzzles allow a 25-day plan without repeats
+    assert "25 dagen hersengym" in titles
 
 
 def test_training_plan_is_balanced_and_gets_harder():

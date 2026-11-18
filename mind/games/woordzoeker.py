@@ -1,6 +1,7 @@
 """Woordzoeker - themed word search whose leftover letters spell a solution."""
 import math
 
+from .. import theme
 from ..draw import Grid, circle, line, rrect, text, text_mid
 from ..theme import GREY, INK, PEN
 from ._woorden import GENERIC_SOLUTIONS, THEMES
@@ -14,6 +15,12 @@ LEVELS = {
     1: (11, (E, S, SE), (4, 8), 22),
     2: (13, (E, S, SE, NE, W_, N), (4, 10), 28),
     3: (15, ALL_DIRS, (5, 12), 36),
+}
+# The 7.3" Paper Pro Move gets smaller grids, so the letters stay readable.
+LEVELS_COMPACT = {
+    1: (10, (E, S, SE), (4, 7), 20),
+    2: (11, (E, S, SE, NE, W_, N), (4, 9), 22),
+    3: (12, ALL_DIRS, (5, 10), 26),
 }
 
 
@@ -121,7 +128,8 @@ class Woordzoeker(Game):
     example = False
 
     def generate(self, rng, level):
-        n, dirs, (lo, hi), max_left = LEVELS[level]
+        n, dirs, (lo, hi), max_left = (LEVELS_COMPACT if theme.COMPACT
+                                        else LEVELS)[level]
         for attempt in range(400):
             title, words, phrases = rng.choice(THEMES)
             pool = [w for w in words if lo <= len(w) <= hi]
@@ -190,14 +198,17 @@ class Woordzoeker(Game):
         x, y, w, h = box
         n = puz["size"]
         words = [p[0] for p in puz["words"]]
-        cols = 4
+        compact = theme.COMPACT
+        cols = 3 if compact else 4
         nrows = math.ceil(len(words) / cols)
-        lead = 11.6
+        lead = 10.6 if compact else 11.6
+        list_size = 8.0 if compact else 8.6
         list_h = nrows * lead + 4
-        slot, gap, word_gap = 13.0, 3.0, 9.0
-        label_w = 62.0
+        slot, gap, word_gap = (12.0, 2.5, 8.0) if compact else (13.0, 3.0, 9.0)
+        label_w = 0.0 if compact else 62.0      # compact: label above the blanks
+        line_h = 20.0 if compact else 22.0
         lines = self._slots(puz["solution"], w - label_w, slot, gap, word_gap)
-        sol_h = len(lines) * 22.0 + 4
+        sol_h = len(lines) * line_h + 4 + (14 if compact else 0)
         g = Grid((x, y + sol_h + list_h + 12, w, h - sol_h - list_h - 12), n, n,
                  max_cell=36, valign="top")
         pad = 5
@@ -230,24 +241,29 @@ class Woordzoeker(Game):
         for i, word in enumerate(words):
             ci, ri = divmod(i, nrows)
             wx, wy = x + ci * col_w + 4, top - ri * lead
-            text(c, wx, wy, word, "SansM", 8.6, GREY if solved else INK)
+            text(c, wx, wy, word, "SansM", list_size, GREY if solved else INK)
             if solved:
                 from reportlab.pdfbase.pdfmetrics import stringWidth
-                line(c, wx - 1, wy + 3, wx + stringWidth(word, "SansM", 8.6) + 1,
+                line(c, wx - 1, wy + 3, wx + stringWidth(word, "SansM", list_size) + 1,
                      wy + 3, 0.8, PEN)
         # answer blanks
         sy = top - nrows * lead - 16
-        text(c, x, sy + 2, "Oplossing", "SansS", 9.5, INK)
+        if compact:
+            text(c, x, sy + 2, "Oplossing", "SansS", 9, INK)
+            sy -= 18
+        else:
+            text(c, x, sy + 2, "Oplossing", "SansS", 9.5, INK)
         for ln in lines:
             sx = x + label_w
             for word in ln:
                 for ch in word:
                     line(c, sx, sy, sx + slot, sy, 1.0, INK)
                     if solved:
-                        text_mid(c, sx + slot / 2, sy + 7.5, ch, "Hand", 17, PEN)
+                        text_mid(c, sx + slot / 2, sy + 7.5, ch, "Hand",
+                                 16 if compact else 17, PEN)
                     sx += slot + gap
                 sx += word_gap - gap
-            sy -= 22.0
+            sy -= line_h
 
     def icon(self, c, cx, cy, s, color):
         for dx, dy, ch in ((-0.3, 0.3, "A"), (0.02, 0.3, "Z"), (-0.3, -0.06, "W"),

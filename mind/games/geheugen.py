@@ -452,10 +452,11 @@ class Geheugen(Game):
                     draw_shape(c, shape, g.cx(col), g.cy(r), s * 0.27,
                                ALL_COLORS[colour][0])
             return
-        pad = 22
+        compact = theme.COMPACT                 # narrow 9:16 page of the Move
+        pad = 13 if compact else 22
         rrect(c, x + 8, y + 8, w - 16, h - 16, 14, stroke=INK, lw=1.6)
         top = y + h - 8 - pad
-        text(c, x + 8 + pad, top - 20, study["title"], "SerifB", 22, INK)
+        text(c, x + 8 + pad, top - 20, study["title"], "SerifB", 19 if compact else 22, INK)
         line(c, x + 8 + pad, top - 32, x + w - 8 - pad, top - 32, 1.2, INK)
         inner_w = w - 16 - 2 * pad
         if variant == "lijst":
@@ -465,14 +466,23 @@ class Geheugen(Game):
             for i, item in enumerate(items):
                 circle(c, x + 8 + pad + 10, yy + 5, 10, stroke=INK, lw=1.0)
                 text_mid(c, x + 8 + pad + 10, yy + 5, i + 1, "SansS", 10, INK)
-                text(c, x + 8 + pad + 32, yy, item, "SansM", 15.5, INK)
+                text(c, x + 8 + pad + 32, yy, item, "SansM", 14 if compact else 15.5, INK)
                 yy -= lead
         else:
             facts = study["facts"]
-            size = 17.5 if len(facts) <= 4 else 15.5
-            lead = size * 1.5
+            if compact:
+                size = 13.0 if len(facts) <= 4 else 12.0
+                lead = size * 1.38
+            else:
+                size = 17.5 if len(facts) <= 4 else 15.5
+                lead = size * 1.5
             blocks = [wrap(f, "Serif", size, inner_w - 28) for f in facts]
             total = sum(len(b) * lead for b in blocks)
+            while compact and total > h - 16 - 2 * pad - 50 - 8 * len(facts) and size > 9.5:
+                size -= 0.5                      # long scene: shrink until it fits
+                lead = size * 1.38
+                blocks = [wrap(f, "Serif", size, inner_w - 28) for f in facts]
+                total = sum(len(b) * lead for b in blocks)
             gap = min(34.0, (h - 16 - 2 * pad - 50 - total) / max(1, len(facts)))
             yy = top - 50
             for i, lines_ in enumerate(blocks):
@@ -485,7 +495,7 @@ class Geheugen(Game):
     def _draw_questions(self, c, box, puz, solved):
         x, y, w, h = box
         qs = puz["questions"]
-        size, lead = 12.0, 16.0
+        size, lead = (10.5, 13.5) if theme.COMPACT else (12.0, 16.0)
         tw = w - 34
         blocks = [wrap(q, "SansM", size, tw) for q, _ in qs]
         fixed = sum(len(b) * lead for b in blocks)

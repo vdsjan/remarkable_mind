@@ -1,10 +1,13 @@
 """Letterchaos - themed anagrams; marked letters reveal a bonus word."""
+from .. import theme
 from ..draw import circle, icon_chevron, rrect, text, text_mid
 from ..theme import GREY, INK, MUSTARD, PEN, WHITE
 from ._woorden import BONUS, THEMES
 from .base import Game
 
 LEVELS = {1: (8, 4, 6), 2: (9, 6, 8), 3: (10, 8, 12)}   # words, min len, max len
+# The 7.3" Paper Pro Move: fewer and shorter words, so the boxes stay writable.
+LEVELS_COMPACT = {1: (6, 4, 6), 2: (7, 5, 8), 3: (7, 8, 10)}
 ALL_WORDS = {w for _, words, _ in THEMES for w in words}
 
 
@@ -62,7 +65,7 @@ class Letterchaos(Game):
     example = False
 
     def generate(self, rng, level):
-        n, lo, hi = LEVELS[level]
+        n, lo, hi = (LEVELS_COMPACT if theme.COMPACT else LEVELS)[level]
         for _ in range(500):
             title, words, _ = rng.choice(THEMES)
             pool = [w for w in words if lo <= len(w) <= hi]
@@ -105,6 +108,8 @@ class Letterchaos(Game):
 
     # -- drawing ----------------------------------------------------------------
     def draw(self, c, box, puz, solved=False, part=0):
+        if theme.COMPACT:
+            return self._draw_compact(c, box, puz, solved)
         x, y, w, h = box
         items = puz["items"]
         n = len(items)
@@ -161,6 +166,86 @@ class Letterchaos(Game):
             c.restoreState()
             if solved:
                 text_mid(c, bx + j * bb + bb / 2, by + bb / 2, ch, "Hand", 22, PEN)
+
+    @staticmethod
+    def _tiles(c, x0, cy, scramble, pitch, i):
+        tile = pitch - 2.0
+        for j, ch in enumerate(scramble):
+            tx = x0 + j * pitch + pitch / 2
+            rot = ((i * 37 + j * 23) % 7 - 3) * 3.0
+            c.saveState()
+            c.translate(tx, cy)
+            c.rotate(rot)
+            rrect(c, -tile / 2, -tile / 2, tile, tile, 2.5, stroke=INK, lw=0.9)
+            text_mid(c, 0, 0, ch, "SansB", tile * 0.62, INK)
+            c.restoreState()
+
+    @staticmethod
+    def _boxes(c, bx0, cy, answer, hi, bw, bh, solved):
+        for j in range(len(answer)):
+            bx = bx0 + j * bw
+            c.saveState()
+            c.setStrokeColor(INK)
+            c.setLineWidth(1.0)
+            if j == hi:
+                c.setFillColor(MUSTARD)
+            c.rect(bx, cy - bh / 2, bw, bh, stroke=1, fill=1 if j == hi else 0)
+            c.restoreState()
+            if solved:
+                text_mid(c, bx + bw / 2, cy, answer[j], "Hand", bh * 0.86, PEN)
+
+    def _draw_compact(self, c, box, puz, solved):
+        """Narrow 9:16 page: scramble and answer side by side when there is
+        room, otherwise the scramble sits on a small line above the boxes."""
+        x, y, w, h = box
+        items = puz["items"]
+        n = len(items)
+        maxlen = max(len(it[1]) for it in items)
+        num_w = 22.0
+        k = len(puz["bonus"])
+        bb = min(26.0, w / k)
+        bonus_h = bb + 22.0
+        avail = (h - bonus_h) / n
+        side_pitch, gap = 16.0, 14.0
+        bw_side = (w - num_w - maxlen * side_pitch - gap) / maxlen
+        top = y + h
+        if bw_side >= 19.0:
+            bw = min(26.0, bw_side)
+            row_h = min(44.0, avail)
+            bh = min(bw, row_h - 9)
+            bx0 = x + num_w + maxlen * side_pitch + gap
+            for i, (scramble, answer, hi) in enumerate(items):
+                cy = top - (i + 0.5) * row_h
+                circle(c, x + 8, cy, 8, fill=INK, stroke=None)
+                text_mid(c, x + 8, cy, i + 1, "SansB", 8.5, WHITE)
+                self._tiles(c, x + num_w, cy, scramble, side_pitch, i)
+                icon_chevron(c, bx0 - gap / 2, cy, 8, 1, GREY, 1.4)
+                self._boxes(c, bx0, cy, answer, hi, bw, bh, solved)
+        else:
+            pitch = 15.0
+            bw = min(26.0, (w - num_w) / maxlen)
+            bh = min(bw, avail - pitch - 5)
+            for i, (scramble, answer, hi) in enumerate(items):
+                ytop = top - i * avail
+                ty = ytop - pitch / 2
+                by = ty - pitch / 2 - 2 - bh / 2
+                circle(c, x + 8, (ty + by) / 2, 8, fill=INK, stroke=None)
+                text_mid(c, x + 8, (ty + by) / 2, i + 1, "SansB", 8.5, WHITE)
+                self._tiles(c, x + num_w, ty, scramble, pitch, i)
+                self._boxes(c, x + num_w, by, answer, hi, bw, bh, solved)
+        # bonus word: label above, boxes right aligned
+        by = y + 4
+        bx = x + w - k * bb
+        text(c, bx, by + bb + 7, "Bonuswoord", "SerifB", 11, INK)
+        for j, ch in enumerate(puz["bonus"]):
+            c.saveState()
+            c.setStrokeColor(INK)
+            c.setLineWidth(1.3)
+            c.setFillColor(MUSTARD)
+            c.rect(bx + j * bb, by, bb, bb, stroke=1, fill=1)
+            c.restoreState()
+            if solved:
+                text_mid(c, bx + j * bb + bb / 2, by + bb / 2, ch, "Hand", bb * 0.84, PEN)
 
     def icon(self, c, cx, cy, s, color):
         t = s * 0.42

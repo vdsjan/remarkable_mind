@@ -7,6 +7,7 @@ one solution.
 """
 import math
 
+from .. import theme
 from ..draw import Grid, line, text, text_mid
 from ..theme import INK, PEN, GREY
 from .base import Game
@@ -804,6 +805,10 @@ class Nonogram(Game):
     ]
     counts = (9, 8, 8)
     SIZE = {1: 10, 2: 15, 3: 20}
+    # The 9:16 page of the Paper Pro Move is too narrow for 20 x 20 plus clue
+    # margins at a pen-friendly cell size, so level 3 stays at 15 x 15 there
+    # (procedural pictures with denser clues than the level 2 icons).
+    SIZE_COMPACT = {1: 10, 2: 15, 3: 15}
 
     def fingerprints(self, puz):
         return [f"pic:{puz['pic']}"] if puz.get("pic") else []
@@ -811,7 +816,7 @@ class Nonogram(Game):
     def generate(self, rng, level, avoid=()):
         """``avoid``: optional collection of ``puz["pic"]`` names already used,
         so a book can skip hand-drawn pictures it has shown before."""
-        n = self.SIZE[level]
+        n = (self.SIZE_COMPACT if theme.COMPACT else self.SIZE)[level]
         lib = {1: ICONS_10, 2: ICONS_15}.get(level)
         grid = title = None
         pic = ""
@@ -857,7 +862,8 @@ class Nonogram(Game):
         left = max(len(r) for r in rows) * slot + 0.4
         top = max(len(k) for k in cols) * slot + 0.25
         x, y, w, h = box
-        g = Grid((x, y + 26, w, h - 26), n, n, max_cell=34, left=left, top=top)
+        foot = 22 if theme.COMPACT else 26
+        g = Grid((x, y + foot, w, h - foot), n, n, max_cell=34, left=left, top=top)
         cell = g.cell
         fs = cell * (0.50 if n <= 15 else 0.54)
         if solved:
@@ -881,9 +887,13 @@ class Nonogram(Game):
         for k in range(0, n + 1, 5):
             line(c, g.x(0) - left * cell + 2, g.y(k), g.x(0), g.y(k), 0.5, GREY)
             line(c, g.x(k), g.y(0), g.x(k), g.y(0) + top * cell - 2, 0.5, GREY)
-        ty = g.y(n) - 20
+        ty = g.y(n) - (17 if theme.COMPACT else 20)
         if solved:
-            text(c, x + w / 2, ty, "Dit is: " + puz["title"], "Hand", 19, PEN, "c")
+            title = "Dit is: " + puz["title"]
+            size = 19
+            while size > 12 and c.stringWidth(title, "Hand", size) > w:
+                size -= 1
+            text(c, x + w / 2, ty, title, "Hand", size, PEN, "c")
         else:
             text(c, x + w / 2, ty + 3, "Wat zie je?  ................................",
                  "SansM", 9, GREY, "c")

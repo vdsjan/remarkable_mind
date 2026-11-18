@@ -1,5 +1,6 @@
 """Codekraker - a Dutch proverb hidden behind a number-for-letter cipher."""
-from ..draw import line, paragraph, rrect, text, text_mid
+from .. import theme
+from ..draw import line, paragraph, rrect, text, text_mid, wrap
 from ..theme import GREY, INK, LIGHT, PEN
 from ._woorden import SPREEKWOORDEN
 from .base import Game
@@ -101,15 +102,18 @@ class Codekraker(Game):
         used = set(puz["text"].replace(" ", ""))
 
         # --- key strip: A-Z with a box for the number --------------------------
-        kw = w / 13
+        compact = theme.COMPACT
+        per_row = 9 if compact else 13            # narrow page: three rows
+        nrows = -(-26 // per_row)
+        kw = w / per_row
         kh = 22.0
-        strip_h = 2 * (kh + 15) + 16
+        strip_h = nrows * (kh + 15) + 16
         text(c, x, y + strip_h - 9, "SLEUTEL", "SansB", 8, INK)
         line(c, x + 44, y + strip_h - 6, x + w, y + strip_h - 6, 0.8, INK)
         for i, ch in enumerate(ALPHABET):
-            row, col = divmod(i, 13)
+            row, col = divmod(i, per_row)
             kx = x + col * kw
-            ky = y + (1 - row) * (kh + 15)
+            ky = y + (nrows - 1 - row) * (kh + 15)
             text_mid(c, kx + kw / 2, ky + kh + 7, ch, "SansB", 10.5, INK)
             rrect(c, kx + 3, ky, kw - 6, kh, 3,
                   fill=LIGHT if ch in given else None, stroke=INK, lw=0.9)
@@ -123,7 +127,12 @@ class Codekraker(Game):
 
         # --- the coded sentence ------------------------------------------------
         area_y = y + strip_h + 14
-        area_h = h - strip_h - 14 - (46 if solved else 0)
+        if compact:
+            mean_lines = wrap("Betekenis: " + puz["meaning"], "HandM", 14, w - 20)
+            reserve = len(mean_lines) * 15 + 10
+        else:
+            reserve = 46
+        area_h = h - strip_h - 14 - (reserve if solved else 0)
         bw = 30.0
         while True:
             lines = self._layout(puz["cipher"], w, bw)
@@ -158,7 +167,10 @@ class Codekraker(Game):
                     xx += bw
                 xx += space
             yy -= row_h
-        if solved:
+        if solved and compact:
+            paragraph(c, x + 10, yy + row_h - bw * 0.2 - 12, w - 20,
+                      "Betekenis: " + puz["meaning"], "HandM", 14, 15, PEN, "c")
+        elif solved:
             paragraph(c, x + 10, yy + row_h - bw * 0.2 - 18, w - 20,
                       "Betekenis: " + puz["meaning"], "HandM", 16, 18, PEN, "c")
 

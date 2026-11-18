@@ -58,3 +58,30 @@ def test_verify_rejects_ambiguous_puzzle():
     with pytest.raises(AssertionError, match="unique"):
         GAME.verify({"shown": "3+3=5", "answer": "2+3=5", "moves": 1})
     GAME.verify({"shown": "6+3=3", "answer": "0+3=3", "moves": 1})
+
+
+def test_fits_the_move_page(tmp_path):
+    """Paper Pro Move: 9:16 page; generate, verify and draw without error."""
+    import random as _random
+
+    from reportlab.pdfgen import canvas as _canvas
+
+    from mind import theme as _theme
+    from mind.games import get as _get
+
+    game = _get("lucifers")
+    try:
+        _theme.set_device("move")
+        _theme.register_fonts()
+        assert _theme.COMPACT
+        c = _canvas.Canvas(str(tmp_path / "move.pdf"), pagesize=(_theme.W, _theme.H))
+        for level in (1, 2, 3):
+            for seed in range(3):
+                puz = game.generate(_random.Random(f"move-{seed}"), level)
+                game.verify(puz)
+                for solved in (False, True):
+                    game.draw(c, _theme.PLAY_BOX, puz, solved=solved)
+                    c.showPage()
+        c.save()
+    finally:
+        _theme.set_device("paperpro")

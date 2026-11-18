@@ -50,3 +50,31 @@ def test_verify_rejects_wrong_bonus():
     puz["bonus"] = puz["bonus"][::-1]
     with pytest.raises(AssertionError):
         GAME.verify(puz)
+
+
+def test_layout_on_paper_pro_move():
+    """Generate, verify and draw every part on the 9:16 Move page."""
+    import random as _random
+
+    from reportlab.pdfgen import canvas as _canvas
+
+    from mind import theme as _theme
+    from mind.games import get as _get
+
+    game = _get("letterchaos")
+    _theme.register_fonts()
+    try:
+        _theme.set_device("move")
+        assert _theme.COMPACT
+        import io
+        c = _canvas.Canvas(io.BytesIO(), pagesize=(_theme.W, _theme.H))
+        for seed in range(3):
+            for level in (1, 2, 3):
+                puz = game.generate(_random.Random(f"move-{seed}"), level)
+                game.verify(puz)
+                for part in range(game.parts):
+                    for solved in (False, True):
+                        game.draw(c, _theme.PLAY_BOX, puz, solved=solved, part=part)
+                        c.showPage()
+    finally:
+        _theme.set_device("paperpro")

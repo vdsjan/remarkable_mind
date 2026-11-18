@@ -8,6 +8,7 @@ from itertools import permutations, product
 
 from reportlab.pdfbase.pdfmetrics import stringWidth
 
+from .. import theme as _theme
 from ..draw import circle, fit_size, line, paragraph, rrect, text, text_mid, wrap
 from ..theme import GREY, INK, LIGHT, PEN
 from .base import Game
@@ -235,6 +236,19 @@ THEMES = [
 SHAPE = {1: (3, 3), 2: (3, 4), 3: (4, 4)}          # level -> (categories, items)
 CLUE_RANGE = {1: (3, 6), 2: (5, 8), 3: (7, 11)}
 MAX_POS = {1: 1, 2: 2, 3: 3}
+# The narrow 9:16 page of the Paper Pro Move cannot hold a 4 x 4 grid next to
+# eleven clues at a pen-friendly size. There level 3 keeps three categories of
+# four, but with more clues and at most one direct "is" clue, so more of the
+# answer has to be deduced.
+SHAPE_COMPACT = {1: (3, 3), 2: (3, 4), 3: (3, 4)}
+CLUE_RANGE_COMPACT = {1: (3, 6), 2: (5, 7), 3: (6, 8)}
+MAX_POS_COMPACT = {1: 1, 2: 2, 3: 1}
+
+
+def _rules():
+    if _theme.COMPACT:
+        return SHAPE_COMPACT, CLUE_RANGE_COMPACT, MAX_POS_COMPACT
+    return SHAPE, CLUE_RANGE, MAX_POS
 
 
 # --- logic ----------------------------------------------------------------------
@@ -352,8 +366,9 @@ class Logigram(Game):
         return _cap(s) + "."
 
     def generate(self, rng, level):
-        k, n = SHAPE[level]
-        lo, hi = CLUE_RANGE[level]
+        shape, clue_range, _ = _rules()
+        k, n = shape[level]
+        lo, hi = clue_range[level]
         theme_idx = rng.randrange(len(THEMES))
         theme = THEMES[theme_idx]
         for _ in range(300):
@@ -429,7 +444,7 @@ class Logigram(Game):
                         cmp_.append({"t": "adj", "a": list(a), "b": list(b),
                                      "o": ordered})
         rng.shuffle(pos)
-        pool = pos[:MAX_POS[level]]
+        pool = pos[:_rules()[2][level]]
         rng.shuffle(neg)
         rng.shuffle(cmp_)
         rng.shuffle(either)
@@ -488,7 +503,23 @@ class Logigram(Game):
         return ("Wie hoort bij wat? Zet in het rooster een kruisje voor ‘nee’ "
                 "en een bolletje voor ‘ja’.")
 
-    def _grid(self, c, box, puz, solved):
+    @staticmethod
+    def _grid_metrics(w, h, puz, fs):
+        """Label sizes and cell size of the grid for a box of w x h."""
+        cats = puz["cats"]
+        k, n = len(cats), len(cats[0]["items"])
+        g = k - 1
+        col_groups = list(range(1, k))
+        row_groups = [0] + list(range(k - 1, 1, -1))
+        strip = 13.0                                   # category name strip
+        lab_w = max(stringWidth(it, "SansM", fs)
+                    for cg in row_groups for it in cats[cg]["items"]) + 10
+        lab_h = max(stringWidth(it, "SansM", fs)
+                    for cg in col_groups for it in cats[cg]["items"]) + 10
+        cell = min(36.0, (w - lab_w - strip) / (g * n), (h - lab_h - strip) / (g * n))
+        return strip, lab_w, lab_h, cell
+
+    def _grid(self, c, box, puz, solved, fs=8.6):
         """The triangular cross-reference grid, centred in box."""
         x, y, w, h = box
         cats = puz["cats"]
@@ -496,13 +527,7 @@ class Logigram(Game):
         g = k - 1
         col_groups = list(range(1, k))
         row_groups = [0] + list(range(k - 1, 1, -1))
-        fs = 8.6
-        strip = 13.0                                   # category name strip
-        lab_w = max(stringWidth(it, "SansM", fs)
-                    for cg in row_groups for it in cats[cg]["items"]) + 10
-        lab_h = max(stringWidth(it, "SansM", fs)
-                    for cg in col_groups for it in cats[cg]["items"]) + 10
-        cell = min(36.0, (w - lab_w - strip) / (g * n), (h - lab_h - strip) / (g * n))
+        strip, lab_w, lab_h, cell = self._grid_metrics(w, h, puz, fs)
         tw = lab_w + strip + g * n * cell
         th = lab_h + strip + g * n * cell
         gx = x + (w - tw) / 2 + lab_w + strip          # left edge of the cells
@@ -556,39 +581,66 @@ class Logigram(Game):
         """Answer table in pen; returns the y below it."""
         cats = puz["cats"]
         k, n = len(cats), len(cats[0]["items"])
-        rh = 25.0
+        compact = _theme.COMPACT
+        rh = 22.0 if compact else 25.0
         cw = w / k
+        pad = 4 if compact else 8
         for cc in range(k):
-            text(c, x + cc * cw + 8, y_top - 13, cats[cc]["label"].upper(),
-                 "SansB", 7.5, GREY)
+            text(c, x + cc * cw + pad, y_top - 13, cats[cc]["label"].upper(),
+                 "SansB", 7 if compact else 7.5, GREY)
         line(c, x, y_top - 19, x + w, y_top - 19, 1.4, INK)
         for p in range(n):
             yy = y_top - 19 - (p + 1) * rh
-            text(c, x + 8, yy + 8, cats[0]["items"][p], "SansS", 11, INK)
+            name = cats[0]["items"][p]
+            text(c, x + pad, yy + 7, name, "SansS",
+                 fit_size(name, "SansS", cw - pad - 2, 10 if compact else 11), INK)
             for cc in range(1, k):
                 label = cats[cc]["items"][puz["solution"][cc][p]]
-                text(c, x + cc * cw + 8, yy + 7, label, "Hand", 17, PEN)
+                size = fit_size(label, "Hand", cw - pad - 2, 15 if compact else 17)
+                text(c, x + cc * cw + pad, yy + 6, label, "Hand", size, PEN)
             line(c, x, yy, x + w, yy, 0.5, GREY)
         return y_top - 19 - n * rh
+
+    def _clue_height(self, puz, w, fs, lead):
+        h = 0.0
+        for clue in puz["clues"]:
+            h += len(wrap(clue["text"], "Sans", fs, w - 22)) * lead + 2.2
+        return h + 6
 
     def draw(self, c, box, puz, solved=False, part=0):
         x, y, w, h = box
         top = y + h
-        yy = paragraph(c, x, top, w, puz["intro"], "SansS", 10, color=INK) - 9
+        compact = _theme.COMPACT
+        intro_fs = 9 if compact else 10
+        yy = paragraph(c, x, top, w, puz["intro"], "SansS", intro_fs, color=INK) - 9
+        grid_fs = 8.6
         if solved:
-            yy = self._table(c, x, yy + 2, w, puz) - 16
+            yy = self._table(c, x, yy + 2, w, puz) - (12 if compact else 16)
+            if compact:
+                grid_fs = 7.8
         else:
             fs, lead = 9.8, 13.4
+            if compact:
+                # shrink the clue text a little until the grid keeps cells of
+                # at least 14 pt, never below 7.6 pt text
+                grid_fs = 7.8
+                fs, lead = 9.0, 11.8
+                while fs > 7.6:
+                    rest = yy - y - self._clue_height(puz, w, fs, lead)
+                    if self._grid_metrics(w, rest, puz, grid_fs)[3] >= 14.5:
+                        break
+                    fs, lead = round(fs - 0.2, 2), round(lead - 0.25, 2)
             for i, clue in enumerate(puz["clues"], 1):
                 lines = wrap(clue["text"], "Sans", fs, w - 22)
-                circle(c, x + 7, yy - fs * 0.62, 6.6, fill=None, stroke=INK, lw=0.9)
-                text_mid(c, x + 7, yy - fs * 0.62, i, "SansB", 7.2, INK)
+                r = 6.6 if fs >= 9.5 else 6.0
+                circle(c, x + 7, yy - fs * 0.62, r, fill=None, stroke=INK, lw=0.9)
+                text_mid(c, x + 7, yy - fs * 0.62, i, "SansB", 7.2 if r > 6 else 6.6, INK)
                 for ln in lines:
                     text(c, x + 20, yy - fs, ln, "Sans", fs, INK)
                     yy -= lead
                 yy -= 2.2
             yy -= 6
-        self._grid(c, (x, y, w, yy - y), puz, solved)
+        self._grid(c, (x, y, w, yy - y), puz, solved, fs=grid_fs)
 
     def icon(self, c, cx, cy, s, color):
         h = s / 2

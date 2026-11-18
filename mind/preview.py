@@ -29,7 +29,8 @@ def render(key, level, seed, out, device="paperpro"):
     dt = time.time() - t0
     game.verify(puz)
     out.mkdir(parents=True, exist_ok=True)
-    pdf = out / f"{key}-L{level}.pdf"
+    tag = f"{key}-L{level}{theme.DEVICE['suffix']}"
+    pdf = out / f"{tag}.pdf"
     c = canvas.Canvas(str(pdf), pagesize=(W, H))
     names = []
     for part in range(game.parts):
@@ -44,7 +45,7 @@ def render(key, level, seed, out, device="paperpro"):
     paths = []
     for page, name in zip(doc, names):
         pix = page.get_pixmap(matrix=fitz.Matrix(px[0] / W, px[1] / H))
-        p = out / f"{key}-L{level}-{name}.png"
+        p = out / f"{tag}-{name}.png"
         pix.save(str(p))
         paths.append(p)
     print(f"{key} L{level}: generated in {dt:.2f}s, verified OK")

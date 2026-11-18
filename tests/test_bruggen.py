@@ -51,3 +51,30 @@ def test_level_sizes():
     for level, (n, lo, hi) in {1: (7, 8, 10), 2: (9, 12, 16), 3: (11, 18, 24)}.items():
         puz = GAME.generate(random.Random(f"size-{level}"), level)
         assert puz["size"] == n and lo <= len(puz["islands"]) <= hi
+
+
+def test_fits_the_move_page(tmp_path):
+    """Paper Pro Move: 9:16 page; generate, verify and draw without error."""
+    import random as _random
+
+    from reportlab.pdfgen import canvas as _canvas
+
+    from mind import theme as _theme
+    from mind.games import get as _get
+
+    game = _get("bruggen")
+    try:
+        _theme.set_device("move")
+        _theme.register_fonts()
+        assert _theme.COMPACT
+        c = _canvas.Canvas(str(tmp_path / "move.pdf"), pagesize=(_theme.W, _theme.H))
+        for level in (1, 2, 3):
+            for seed in range(3):
+                puz = game.generate(_random.Random(f"move-{seed}"), level)
+                game.verify(puz)
+                for solved in (False, True):
+                    game.draw(c, _theme.PLAY_BOX, puz, solved=solved)
+                    c.showPage()
+        c.save()
+    finally:
+        _theme.set_device("paperpro")

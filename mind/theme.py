@@ -1,10 +1,16 @@
 """Visual identity of Remarkable Mind: page geometry, colours and fonts.
 
-The page is exactly 3:4, the aspect ratio of the reMarkable Paper Pro screen
-(1620 x 2160 px, 11.8"), so every page fills the display edge to edge.
+Every device gets a page with exactly the aspect ratio of its screen, so each
+page fills the display edge to edge:
+
+* reMarkable Paper Pro: 3:4, 1620 x 2160 px, 11.8", colour
+* reMarkable 2: 3:4, 1404 x 1872 px, 10.3", greyscale
+* reMarkable Paper Pro Move: 9:16, 954 x 1696 px, 7.3", colour
+
 Colours are bold, saturated spot colours: the Gallery 3 colour e-ink panel
 renders those far better than pastel tints or gradients.
 """
+import sys
 from pathlib import Path
 
 from reportlab.lib.colors import HexColor
@@ -16,12 +22,34 @@ FONT_DIR = ROOT / "fonts"
 ASSET_DIR = ROOT / "assets"
 
 # --- page geometry (points) -------------------------------------------------
-W, H = 510.0, 680.0          # 3:4, ~180 x 240 mm
-M = 28.0                     # outer margin
-TOP_BAR_Y = H - 62.0         # bottom edge of the top navigation bar
-BOTTOM_BAR_H = 54.0          # height reserved for the bottom bar
-# Area a game may draw in on a puzzle page: (x, y, w, h), y = bottom edge.
-PLAY_BOX = (M, BOTTOM_BAR_H + 16, W - 2 * M, H - 150 - BOTTOM_BAR_H - 16)
+# "wide" is the 3:4 page of the Paper Pro and the reMarkable 2 (510 pt is
+# almost exactly the physical width of the Paper Pro screen). "tall" is the
+# 9:16 page of the Paper Pro Move: 320 pt wide, shown at about 81% of its
+# nominal size on the 7.3" screen, so the layout uses tighter margins.
+GEOMETRIES = {
+    "wide": {"W": 510.0, "H": 680.0, "M": 28.0, "TOP_RESERVE": 150.0,
+             "BOTTOM_BAR_H": 54.0, "BAR_H": 32.0, "BAR_TOP": 22.0,
+             "LEFT_SAFE": 46.0, "COMPACT": False},
+    "tall": {"W": 320.0, "H": 320.0 * 16 / 9, "M": 16.0, "TOP_RESERVE": 156.0,
+             "BOTTOM_BAR_H": 50.0, "BAR_H": 28.0, "BAR_TOP": 16.0,
+             "LEFT_SAFE": 40.0, "COMPACT": True},
+}
+GEOMETRY_KEYS = ("W", "H", "M", "TOP_BAR_Y", "BOTTOM_BAR_H", "PLAY_BOX",
+                 "BAR_H", "BAR_Y", "LEFT_SAFE", "COMPACT")
+
+
+def _derive(g):
+    d = dict(g)
+    d["TOP_BAR_Y"] = d["H"] - 62.0          # bottom edge of the top navigation bar
+    d["BAR_Y"] = d["H"] - d["BAR_TOP"] - d["BAR_H"]
+    # Area a game may draw in on a puzzle page: (x, y, w, h), y = bottom edge.
+    d["PLAY_BOX"] = (d["M"], d["BOTTOM_BAR_H"] + 16, d["W"] - 2 * d["M"],
+                     d["H"] - d["TOP_RESERVE"] - d["BOTTOM_BAR_H"] - 16)
+    return d
+
+
+globals().update({k: v for k, v in _derive(GEOMETRIES["wide"]).items()
+                  if k in GEOMETRY_KEYS})
 
 # --- colours ----------------------------------------------------------------
 INK = HexColor("#141414")
@@ -62,9 +90,14 @@ LEVEL_NAMES = ("Opwarmen", "Pittig", "Meesterlijk")
 # texts and puzzles that rely on colour.
 DEVICES = {
     "paperpro": {"label": "reMarkable Paper Pro", "screen": "11,8 inch, kleur",
-                 "px": (1620, 2160), "mono": False, "suffix": ""},
+                 "px": (1620, 2160), "mono": False, "suffix": "",
+                 "geometry": "wide"},
+    "move": {"label": "reMarkable Paper Pro Move", "screen": "7,3 inch, kleur",
+             "px": (954, 1696), "mono": False, "suffix": "-Move",
+             "geometry": "tall"},
     "rm2": {"label": "reMarkable 2", "screen": "10,3 inch, zwart-wit",
-            "px": (1404, 1872), "mono": True, "suffix": "-rM2"},
+            "px": (1404, 1872), "mono": True, "suffix": "-rM2",
+            "geometry": "wide"},
 }
 DEVICE = DEVICES["paperpro"]
 MONO = False
@@ -86,17 +119,36 @@ _MONO_TEXT = [
 
 
 def set_device(name):
-    """Switch the whole book to a device profile ("paperpro" or "rm2").
+    """Switch the whole book to a device profile ("paperpro", "move", "rm2").
 
     The colour objects are changed in place, so every module that imported
-    them follows along."""
+    them follows along. Geometry values are numbers, which cannot change in
+    place: they are rebound here and in every loaded ``mind`` module that
+    imported them by name (``from .theme import W``), so the page code keeps
+    using plain names."""
     global DEVICE, MONO
     DEVICE = DEVICES[name]
     MONO = DEVICE["mono"]
     for key, colour in _SPOT.items():
         rgb = HexColor(_GREY_HEX[key]).rgb() if MONO else _COLOUR_RGB[key]
         colour.red, colour.green, colour.blue = rgb
+    geo = {k: v for k, v in _derive(GEOMETRIES[DEVICE["geometry"]]).items()
+           if k in GEOMETRY_KEYS}
+    globals().update(geo)
+    package = __name__.rsplit(".", 1)[0]
+    for mod_name, mod in list(sys.modules.items()):
+        spec = getattr(mod, "__spec__", None)
+        real = spec.name if spec is not None else mod_name   # "python -m mind.book"
+        if mod is None or not real.startswith(package + ".") or real == __name__:
+            continue
+        for k, v in geo.items():
+            if k in vars(mod):
+                setattr(mod, k, v)
     return DEVICE
+
+
+def device_key():
+    return next(k for k, v in DEVICES.items() if v is DEVICE)
 
 
 def localize(s):
