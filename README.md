@@ -1,14 +1,14 @@
 # Remarkable Mind
 
-**Hersengym op papier** — 16 hersenspellen, 400 puzzels en een trainingsplan van 30 dagen, volledig offline op de reMarkable Paper Pro (kleur), de Paper Pro Move (kleur, 7,3") en de reMarkable 2 (zwart-wit).
+**Hersengym op papier** — 24 hersenspellen, 600 puzzels en een trainingsplan van 30 dagen, volledig offline op de reMarkable Paper Pro (kleur), de Paper Pro Move (kleur, 7,3") en de reMarkable 2 (zwart-wit).
 
 ![Cover, startscherm en een puzzel](docs/screens.jpg)
 
 | | |
 |---|---|
-| **De app voor de Paper Pro** | [`dist/RemarkableMind.pdf`](dist/RemarkableMind.pdf) — kleur, 849 pagina's, 6.020 tikbare links, 4,9 MB |
-| **De app voor de Paper Pro Move** | [`dist/RemarkableMind-Move.pdf`](dist/RemarkableMind-Move.pdf) — kleur, pagina's in 9:16, 855 pagina's, 5,1 MB |
-| **De app voor de reMarkable 2** | [`dist/RemarkableMind-rM2.pdf`](dist/RemarkableMind-rM2.pdf) — grijstinten, zelfde 400 puzzels, 4,6 MB |
+| **De app voor de Paper Pro** | [`dist/RemarkableMind.pdf`](dist/RemarkableMind.pdf) — kleur, 1.258 pagina's, 8.882 tikbare links, 6,4 MB |
+| **De app voor de Paper Pro Move** | [`dist/RemarkableMind-Move.pdf`](dist/RemarkableMind-Move.pdf) — kleur, pagina's in 9:16, 1.264 pagina's, 6,7 MB |
+| **De app voor de reMarkable 2** | [`dist/RemarkableMind-rM2.pdf`](dist/RemarkableMind-rM2.pdf) — grijstinten, zelfde 600 puzzels, 6,1 MB |
 | **De website** | [`web/public`](web/public) — stel je eigen boek samen in de browser, gehost op Cloudflare (zie [De website](#de-website)) |
 | **De promofilm** | [`promo/RemarkableMind-promo.mp4`](promo/RemarkableMind-promo.mp4) — 66 seconden, Nederlands gesproken |
 
@@ -19,12 +19,16 @@ interactieve PDF: elke knop is een link, je navigeert door te tikken en je lost
 op met je pen. Dat werkt op een standaard toestel, zonder developer mode,
 zonder account en zonder netwerk.
 
-- **16 spellen in 4 denkspieren**
-  - *Getallen*: Sudoku, Calcudoku, Rekenpiramide, Getallenreeksen
-  - *Logica*: Binairo, Wolkenkrabbers, Logigram, Bruggen
-  - *Ruimte*: Doolhof, Japanse puzzel, Kleurlink, Lucifers
-  - *Taal & Geheugen*: Woordzoeker, Codekraker, Letterchaos, Geheugentraining
-- **400 puzzels** in drie niveaus (Opwarmen, Pittig, Meesterlijk), 25 per spel.
+- **24 spellen in 4 denkspieren**, zes per spier (**vet** = nieuw in versie 2)
+  - *Getallen*: Sudoku, Calcudoku, Rekenpiramide, Getallenreeksen, Lucifers,
+    **Dominodetective**
+  - *Logica*: Binairo, Wolkenkrabbers, Logigram, Bruggen, **Lichtplan**,
+    **Eilandenrijk**
+  - *Ruimte*: Doolhof, Japanse puzzel, Kleurlink, **Spiegelkamer**,
+    **Sterrenstelsels**, **Vouwcode**
+  - *Taal & Geheugen*: Woordzoeker, Codekraker, Letterchaos, Geheugentraining,
+    **Woordladder**, **Plaats delict**
+- **600 puzzels** in drie niveaus (Opwarmen, Pittig, Meesterlijk), 25 per spel.
 - **Eén oplossing, nooit gokken**: elke logische puzzel is door een solver
   nagerekend op precies één oplossing.
 - **30 dagen hersengym**: elke dag vier puzzels, één per denkspier, met
@@ -33,6 +37,27 @@ zonder account en zonder netwerk.
   vette steunkleuren, vectorlijnen, grote tik- en schrijfvlakken.
 - **Oplossingen achteraan**, bereikbaar via de knop *Oplossing* op elke puzzel,
   in blauw "handschrift".
+
+## Nieuw in versie 2
+
+Acht extra spellen, elk met een eigen generator en een solver die de unieke
+oplossing bewijst:
+
+| Spel | Wat doe je? | Niveaus |
+|---|---|---|
+| **Plaats delict** | Zet de verdachten op een plattegrond met aanwijzingen als *"De tuinman kon de trap zien"* en ontmasker wie alleen bij de buit stond. Twaalf decors, van museum tot sterrenwacht. | 4×4, 5×5, 6×6 |
+| **Spiegelkamer** | Teken precies het opgegeven aantal spiegels zodat de lichtstraal langs alle voorwerpen naar de uitgang loopt. | 2, 3 of 4 spiegels |
+| **Sterrenstelsels** | Verdeel het rooster in gebieden rond de stippen; elk gebied past na een halve draai op zichzelf. | 5×5, 7×7, 9×9 |
+| **Lichtplan** | Hang lampen in het donkere museum: alles verlicht, geen lamp beschijnt een andere, de cijfers tellen de lampen ernaast. | 6×6, 8×8, 10×10 |
+| **Dominodetective** | Teken de verdwenen randen van de dominostenen terug; elke combinatie komt precies één keer voor. | dubbel-3, -4, -6 |
+| **Eilandenrijk** | Kleur de zee: eilanden met de opgegeven oppervlakte, één verbonden zee zonder blok van 2×2. | 5×5, 6×6, 7×7 |
+| **Woordladder** | Verander telkens één letter en maak bij elke stap een bestaand woord. Op niveau 3 met een verplicht tussenwoord. | 3 of 4 letters |
+| **Vouwcode** | Het blad wordt gevouwen en geprikt; teken waar de gaatjes zitten als het weer open ligt. | 1, 2 of 3 vouwen |
+
+Het startscherm, het scorebord en het overzicht van de oplossingen zijn
+herschikt voor 24 spellen, en Lucifers is verhuisd naar *Getallen*. Op de
+website kies je met de knop *Nieuw in versie 2* in één tik de acht nieuwe
+spellen.
 
 ## Welk toestel?
 
@@ -46,12 +71,14 @@ hele scherm vullen:
 | Bestand | `RemarkableMind.pdf` | `RemarkableMind-Move.pdf` | `RemarkableMind-rM2.pdf` |
 
 **Paper Pro Move.** Het smalle 9:16-scherm krijgt een eigen, compactere
-opmaak: een navigatiebalk met pictogrammen, tegels in twee kolommen, en de
-uitleg, het dagplan en het scorebord verdeeld over meer pagina's. Vier spellen
-maken er kleinere varianten zodat de vakjes groot genoeg blijven om in te
+opmaak: een navigatiebalk met pictogrammen, compacte tegels, en de uitleg,
+het dagplan en het scorebord verdeeld over meer pagina's. Een aantal spellen
+maakt er kleinere varianten zodat de vakjes groot genoeg blijven om in te
 schrijven: de Japanse puzzel (15×15 in plaats van 20×20), het logigram (3 in
-plaats van 4 categorieën op niveau 3), de woordzoeker (tot 12×12) en
-Letterchaos (minder en kortere woorden).
+plaats van 4 categorieën op niveau 3), de woordzoeker (tot 12×12),
+Letterchaos (minder en kortere woorden), Lichtplan (tot 8×8),
+Sterrenstelsels (tot 7×7), Dominodetective (dubbel-5 op niveau 3) en
+Plaats delict (5×5 op niveau 3).
 
 **reMarkable 2.** Dit toestel toont geen kleur; zijn editie is daarom apart
 opgebouwd in grijstinten die op het scherm van elkaar te onderscheiden
@@ -90,7 +117,7 @@ het boek, dus wissen of een nieuwe laag gebruiken maakt een puzzel weer leeg.
 
 ## Zelf een nieuwe editie bouwen
 
-Elke editie is een compleet nieuw boek met 400 andere puzzels.
+Elke editie is een compleet nieuw boek met 600 andere puzzels.
 
 ```bash
 pip install -r requirements.txt
@@ -160,8 +187,8 @@ Daarna download je de PDF.
 [Pyodide](https://pyodide.org) (Python in WebAssembly) in een Web Worker op het
 toestel van de bezoeker. Er is dus geen server, geen upload en geen
 wachtrij, en het boek is identiek aan dat van `python -m mind.book`. Het
-volledige boek van 400 puzzels is in ongeveer 13 seconden klaar, een kleine
-selectie in 2 à 3 seconden. Een service worker bewaart de rekenmotor, zodat
+volledige boek van 600 puzzels is in ongeveer 20 seconden klaar, een kleine
+selectie in 3 à 5 seconden. Een service worker bewaart de rekenmotor, zodat
 de site na het eerste bezoek ook offline werkt.
 
 | Bestand | Wat |
@@ -220,10 +247,19 @@ Met een API-token kan het ook rechtstreeks: `npx wrangler deploy`.
 python promo/make_film.py
 ```
 
+De film is gemaakt bij versie 1 en noemt daarom nog 16 spellen en 400
+puzzels.
+
 ## Credits
 
 - Illustraties, videoclips, stem en muziek: gegenereerd met ElevenLabs.
 - Lettertypes: Fraunces, Inter en Caveat (SIL Open Font License, zie `mind/fonts/`).
+- Woordenlijst van Woordladder: samengesteld uit de
+  [OpenTaal-woordenlijst](https://www.opentaal.org) (BSD / CC BY 3.0).
+- De nieuwe spellen zijn eigen uitwerkingen van bekende puzzeltypes: Akari
+  (Lichtplan), Nurikabe (Eilandenrijk), Galaxies (Sterrenstelsels), Dominosa
+  (Dominodetective) en de woordladder van Lewis Carroll; Plaats delict is
+  geïnspireerd op Murdoku.
 - PDF: ReportLab en PyMuPDF.
 
 reMarkable is een merk van reMarkable AS. Dit is een onafhankelijk project,

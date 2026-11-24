@@ -1,6 +1,6 @@
 {
- "version": "1.0.0",
- "app": "py/app.d4cfc485c1af.zip",
+ "version": "2.0.0",
+ "app": "py/app.6fd438cd9188.zip",
  "pyodide": "314.0.8",
  "packages": [
   "pillow"
@@ -35,7 +35,7 @@
   {
    "key": "taal",
    "name": "Taal & Geheugen",
-   "blurb": "Woorden, codes en onthouden",
+   "blurb": "Woorden, codes, verhalen en onthouden",
    "color": "#141414"
   }
  ],
@@ -46,6 +46,7 @@
    "category": "getallen",
    "tagline": "De klassieker: negen cijfers, één oplossing.",
    "parts": 1,
+   "new": false,
    "rules": [
     "Vul elk leeg vakje met een cijfer van 1 tot 9.",
     "In elke rij, elke kolom en elk blok van 3 × 3 komt elk cijfer precies één keer voor.",
@@ -58,6 +59,7 @@
    "category": "getallen",
    "tagline": "Sudoku ontmoet hoofdrekenen.",
    "parts": 1,
+   "new": false,
    "rules": [
     "Vul het rooster met de cijfers 1 tot en met de roosterbreedte.",
     "In elke rij en elke kolom komt elk cijfer precies één keer voor.",
@@ -71,6 +73,7 @@
    "category": "getallen",
    "tagline": "Stapel sommen tot de top klopt.",
    "parts": 1,
+   "new": false,
    "rules": [
     "Elke steen is de som van de twee stenen waar hij op rust.",
     "Vul alle lege stenen in met positieve gehele getallen.",
@@ -83,10 +86,37 @@
    "category": "getallen",
    "tagline": "Ontdek de regel, vind het ontbrekende getal.",
    "parts": 1,
+   "new": false,
    "rules": [
     "Elke rij getallen volgt een vaste regel.",
     "Zoek de regel en schrijf het getal op dat op de plaats van het vraagteken hoort.",
     "De regel kan optellen, aftrekken, vermenigvuldigen of een mix daarvan zijn."
+   ]
+  },
+  {
+   "key": "lucifers",
+   "name": "Lucifers",
+   "category": "getallen",
+   "tagline": "De som klopt niet. Eén lucifer verleggen en ze klopt wel.",
+   "parts": 1,
+   "new": false,
+   "rules": [
+    "De som in lucifers is fout. Verplaats precies het gevraagde aantal lucifers zodat ze klopt.",
+    "Je mag geen lucifers wegnemen of bijleggen, en het =-teken blijft staan.",
+    "Elk cijfer blijft een geldig cijfer; van een + mag je een − maken en omgekeerd."
+   ]
+  },
+  {
+   "key": "dominodetective",
+   "name": "Dominodetective",
+   "category": "getallen",
+   "tagline": "De stenen liggen er nog, alleen hun randen zijn verdwenen.",
+   "parts": 1,
+   "new": true,
+   "rules": [
+    "In het rooster ligt een volledig dominospel, maar de randen van de stenen zijn weg. Teken ze terug: elke steen bedekt twee vakjes naast elkaar.",
+    "Elke combinatie van twee cijfers komt precies één keer voor, ook de dubbele.",
+    "Onder het rooster staan alle stenen; streep af wat je gevonden hebt."
    ]
   },
   {
@@ -95,6 +125,7 @@
    "category": "logica",
    "tagline": "Alleen nullen en enen, en toch verrassend lastig.",
    "parts": 1,
+   "new": false,
    "rules": [
     "Vul elk leeg vakje met een 0 of een 1.",
     "Er staan nooit meer dan twee dezelfde cijfers naast of onder elkaar.",
@@ -108,6 +139,7 @@
    "category": "logica",
    "tagline": "Bouw een skyline en kijk wie achter wie verdwijnt.",
    "parts": 1,
+   "new": false,
    "rules": [
     "In elk vakje staat een gebouw; het cijfer is de hoogte in verdiepingen.",
     "In elke rij en elke kolom komt elke hoogte precies één keer voor.",
@@ -120,6 +152,7 @@
    "category": "logica",
    "tagline": "Wie hoort bij wat? Speel detective met een handvol aanwijzingen.",
    "parts": 1,
+   "new": false,
    "rules": [
     "Elke persoon hoort bij precies één item uit elke andere categorie, en elk item hoort bij precies één persoon.",
     "Lees de aanwijzingen en noteer in het rooster wat zeker niet kan (kruisje) en wat zeker wel klopt (bolletje).",
@@ -132,6 +165,7 @@
    "category": "logica",
    "tagline": "Verbind alle eilanden tot één geheel.",
    "parts": 1,
+   "new": false,
    "rules": [
     "Verbind de eilanden met rechte bruggen, horizontaal of verticaal.",
     "Het getal op een eiland is het aantal bruggen dat er vertrekt; tussen twee eilanden liggen hoogstens twee bruggen.",
@@ -140,11 +174,38 @@
    ]
   },
   {
+   "key": "lichtplan",
+   "name": "Lichtplan",
+   "category": "logica",
+   "tagline": "Het museum is donker. Waar hang jij de lampen?",
+   "parts": 1,
+   "new": true,
+   "rules": [
+    "Zet lampen in de open vakjes tot elk open vakje verlicht is. Een lamp schijnt langs haar rij en kolom, tot aan een zwart blok.",
+    "Twee lampen mogen elkaar nooit beschijnen.",
+    "Een cijfer op een zwart blok zegt hoeveel lampen er pal naast staan: boven, onder, links of rechts."
+   ]
+  },
+  {
+   "key": "eilandenrijk",
+   "name": "Eilandenrijk",
+   "category": "logica",
+   "tagline": "Kleur de zee in en laat een landkaart ontstaan.",
+   "parts": 1,
+   "new": true,
+   "rules": [
+    "Kleur vakjes in tot zee. Elk getal ligt op een eiland van precies zoveel vakjes, en op elk eiland ligt precies één getal.",
+    "Eilanden raken elkaar nooit langs een zijde; schuin mag wel.",
+    "De zee is één aaneengesloten geheel en vult nergens een blok van 2×2 vakjes."
+   ]
+  },
+  {
    "key": "doolhof",
    "name": "Doolhof",
    "category": "ruimte",
    "tagline": "Eén weg leidt naar het doel. Vind hem zonder vast te lopen.",
    "parts": 1,
+   "new": false,
    "rules": [
     "Teken met je pen de weg van de rode pijl naar de ster.",
     "Je mag nergens door een muur gaan.",
@@ -157,6 +218,7 @@
    "category": "ruimte",
    "tagline": "Kleur de juiste vakjes en ontdek de tekening.",
    "parts": 1,
+   "new": false,
    "rules": [
     "De getallen naast een rij en boven een kolom geven aan hoe lang de groepjes gekleurde vakjes zijn, in de juiste volgorde.",
     "Tussen twee groepjes in dezelfde rij of kolom staat minstens één leeg vakje.",
@@ -169,6 +231,7 @@
    "category": "ruimte",
    "tagline": "Verbind de kleuren en laat geen vakje leeg.",
    "parts": 1,
+   "new": false,
    "rules": [
     "Verbind de twee stippen met dezelfde letter en kleur door een lijn van vakje naar vakje, horizontaal of verticaal.",
     "Lijnen kruisen of raken elkaar nooit: in elk vakje loopt precies één lijn.",
@@ -176,15 +239,42 @@
    ]
   },
   {
-   "key": "lucifers",
-   "name": "Lucifers",
+   "key": "spiegelkamer",
+   "name": "Spiegelkamer",
    "category": "ruimte",
-   "tagline": "De som klopt niet. Eén lucifer verleggen en ze klopt wel.",
+   "tagline": "Stuur de lichtstraal met spiegels langs alle edelstenen naar buiten.",
    "parts": 1,
+   "new": true,
    "rules": [
-    "De som in lucifers is fout. Verplaats precies het gevraagde aantal lucifers zodat ze klopt.",
-    "Je mag geen lucifers wegnemen of bijleggen, en het =-teken blijft staan.",
-    "Elk cijfer blijft een geldig cijfer; van een + mag je een − maken en omgekeerd."
+    "De lichtstraal vertrekt bij de lamp en gaat rechtdoor. Een schuine spiegel kaatst haar een kwartslag weg; een pilaar (gevuld vakje) houdt haar tegen.",
+    "Teken het gevraagde aantal schuine spiegels in lege vakjes, zodat de straal langs alle edelstenen loopt en de kamer verlaat bij UIT.",
+    "Elke spiegel die je tekent moet door de straal geraakt worden."
+   ]
+  },
+  {
+   "key": "sterrenstelsels",
+   "name": "Sterrenstelsels",
+   "category": "ruimte",
+   "tagline": "Elk stelsel draait om zijn eigen ster.",
+   "parts": 1,
+   "new": true,
+   "rules": [
+    "Verdeel het rooster langs de lijnen in gebieden; elk vakje hoort bij precies één gebied.",
+    "Elk gebied bevat precies één stip, en die ligt in het midden ervan.",
+    "Draai je een gebied een halve slag om zijn stip, dan past het precies op zichzelf."
+   ]
+  },
+  {
+   "key": "vouwcode",
+   "name": "Vouwcode",
+   "category": "ruimte",
+   "tagline": "Vouw, prik en ontvouw in gedachten: waar zitten de gaatjes?",
+   "parts": 1,
+   "new": true,
+   "rules": [
+    "Het blad wordt gevouwen zoals de genummerde stappen tonen: de pijl wijst aan welk deel over de stippellijn op de rest wordt gelegd.",
+    "In het gevouwen pakje worden gaatjes geprikt, dwars door alle lagen.",
+    "Teken op het lege blad waar alle gaatjes zitten wanneer het blad weer open ligt."
    ]
   },
   {
@@ -193,6 +283,7 @@
    "category": "taal",
    "tagline": "Speur alle woorden op en ontdek de verborgen oplossing.",
    "parts": 1,
+   "new": false,
    "rules": [
     "Zoek alle woorden uit de lijst in het letterveld en streep ze door.",
     "Woorden staan horizontaal, verticaal of diagonaal; op de hogere niveaus ook achterstevoren.",
@@ -206,6 +297,7 @@
    "category": "taal",
    "tagline": "Elk cijfer is een letter. Kraak de code en lees het spreekwoord.",
    "parts": 1,
+   "new": false,
    "rules": [
     "Elk getal staat voor één vaste letter; dezelfde letter heeft overal hetzelfde getal.",
     "Enkele letters zijn al ingevuld. Vul de rest in tot er een bekend Nederlands spreekwoord staat.",
@@ -218,6 +310,7 @@
    "category": "taal",
    "tagline": "De letters liggen door elkaar. Welke woorden zitten erin?",
    "parts": 1,
+   "new": false,
    "rules": [
     "Elke rij is een woord uit het thema, maar de letters staan door elkaar.",
     "Zet de letters in de juiste volgorde en schrijf het woord in de vakjes.",
@@ -230,13 +323,45 @@
    "category": "taal",
    "tagline": "Kijk, onthoud, blader om en test wat je nog weet.",
    "parts": 2,
+   "new": false,
    "rules": [
     "Bekijk de eerste pagina een minuut lang heel aandachtig.",
     "Tik op Verder en beantwoord de vragen uit je hoofd, zonder terug te bladeren.",
     "Controleer daarna je antwoorden op de oplossingspagina."
    ]
+  },
+  {
+   "key": "woordladder",
+   "name": "Woordladder",
+   "category": "taal",
+   "tagline": "Van woord naar woord, één letter per sport.",
+   "parts": 1,
+   "new": true,
+   "rules": [
+    "Klim van het bovenste woord naar het onderste. Op elke sport verander je precies één letter, en elke sport is een bestaand Nederlands woord.",
+    "De letters blijven op hun plaats: KAT wordt LAT, LAT wordt LOT, LOT wordt POT.",
+    "Er zijn precies genoeg sporten voor de kortste weg. Staat er al een woord op een sport, dan moet je route daarlangs.",
+    "Vaak kan het op meer manieren: elke route met echte woorden telt."
+   ]
+  },
+  {
+   "key": "plaatsdelict",
+   "name": "Plaats delict",
+   "category": "taal",
+   "tagline": "Zet de verdachten op de plattegrond en ontmasker de dief.",
+   "parts": 1,
+   "new": true,
+   "rules": [
+    "Zet elke verdachte in een leeg vakje. In elke rij en in elke kolom staat precies één verdachte; op een voorwerp kan niemand staan.",
+    "Alle uitspraken kloppen. Naast betekent: de vakjes raken elkaar met een zijde. Iemand ziet een voorwerp als die in dezelfde rij of kolom staat, zonder ander voorwerp ertussen. Noord is boven, west is links.",
+    "De dief is de enige verdachte in de ruimte van het voorwerp met de ster."
+   ]
   }
  ],
+ "totals": {
+  "games": 24,
+  "puzzles": 600
+ },
  "devices": [
   {
    "key": "paperpro",
@@ -250,8 +375,8 @@
    "suffix": "",
    "download": {
     "file": "downloads/RemarkableMind.pdf",
-    "mb": 4.9,
-    "pages": 849
+    "mb": 6.4,
+    "pages": 1258
    }
   },
   {
@@ -266,8 +391,8 @@
    "suffix": "-Move",
    "download": {
     "file": "downloads/RemarkableMind-Move.pdf",
-    "mb": 5.1,
-    "pages": 855
+    "mb": 6.7,
+    "pages": 1264
    }
   },
   {
@@ -282,8 +407,8 @@
    "suffix": "-rM2",
    "download": {
     "file": "downloads/RemarkableMind-rM2.pdf",
-    "mb": 4.6,
-    "pages": 849
+    "mb": 6.1,
+    "pages": 1258
    }
   }
  ]
