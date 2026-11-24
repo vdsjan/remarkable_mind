@@ -9,7 +9,8 @@ from ..draw import Grid, circle, line, rrect, text, text_mid
 from ..theme import GREY, INK, PEN, WHITE
 from .base import Game
 
-SIZES = {1: 5, 2: 6, 3: 7}
+SIZES = {1: 5, 2: 6, 3: 8}
+SIZES_COMPACT = {1: 5, 2: 6, 3: 7}          # Paper Pro Move: keep cells large
 MAX_ISLAND = {1: 4, 2: 5, 3: 6}
 SEA_SHARE = {1: (0.48, 0.64), 2: (0.50, 0.64), 3: (0.50, 0.64)}
 
@@ -182,39 +183,54 @@ def _components(n, cells):
     return out
 
 
-def _square(sea, r, c):
-    """Would (r, c) complete a 2 x 2 block of sea?"""
-    for dr in (-1, 0):
-        for dc in (-1, 0):
-            if all((r + dr + a, c + dc + b) in sea or (a == -dr and b == -dc)
-                   for a in (0, 1) for b in (0, 1)):
-                return True
-    return False
-
-
-def _layout(rng, n, max_island, share):
+def _layout(rng, n, max_island, share, singles=2):
     """A random sea: connected, without 2 x 2 blocks, leaving small islands.
 
-    Returns (sea set, islands) or None when the walk gets stuck."""
-    every = [(r, c) for r in range(n) for c in range(n)]
-    sea = {rng.choice(every)}
+    Grows the sea one cell at a time. Returns (sea mask, list of island
+    masks) on the padded board, or None when the growth gets stuck."""
+    b = _Board(n)
+    w, full, anchors = b.w, b.full, b.anchors
     lo, hi = share
     target = rng.uniform(lo, hi) * n * n
+    sea = b.bit(rng.randrange(n), rng.randrange(n))
     while True:
-        land = [p for p in every if p not in sea]
-        islands = _components(n, land)
-        big = [isl for isl in islands if len(isl) > max_island]
-        if not big and len(sea) >= target:
+        land = full & ~sea
+        islands, big = [], 0
+        rest = land
+        while rest:
+            comp = b.flood(rest & -rest, land)
+            rest &= ~comp
+            islands.append(comp)
+            if _bits(comp) > max_island:
+                big |= comp
+        count = _bits(sea)
+        if not big and count >= target:
             return sea, islands
-        if len(sea) > hi * n * n + 1:
+        if count > hi * n * n + 1:
             return None
-        pool = [p for isl in big for p in isl] if big else land
-        cands = [(r, c) for r, c in pool
-                 if any(nb in sea for nb in ((r - 1, c), (r + 1, c), (r, c - 1), (r, c + 1)))
-                 and not _square(sea, r, c)]
+        s = sea
+        square = (s >> 1 & s >> w & s >> (w + 1) & anchors
+                  | (s & s >> w & s >> (w + 1) & anchors) << 1
+                  | (s & s >> 1 & s >> (w + 1) & anchors) << w
+                  | (s & s >> 1 & s >> w & anchors) << (w + 1))
+        cands = b.grow(sea) & (big or land) & ~square
+        # do not strand a lonely cell: once there are enough single-cell
+        # islands, keep the last land neighbour of every land cell
+        l1, l2, l3, l4 = land >> 1, land << 1, land >> w, land << w
+        pairs = l1 & l2 | l1 & l3 | l1 & l4 | l2 & l3 | l2 & l4 | l3 & l4
+        lonely = land & ~(l1 | l2 | l3 | l4)
+        if _bits(lonely) >= singles:
+            leaf = land & (l1 ^ l2 ^ l3 ^ l4) & ~pairs
+            cands &= ~((leaf & l1) << 1 | (leaf & l2) >> 1
+                       | (leaf & l3) << w | (leaf & l4) >> w)
         if not cands:
             return None
-        sea.add(rng.choice(cands))
+        picks = []
+        while cands:
+            low = cands & -cands
+            picks.append(low)
+            cands ^= low
+        sea |= rng.choice(picks)
 
 
 class Eilandenrijk(Game):
@@ -238,23 +254,30 @@ class Eilandenrijk(Game):
     counts = (9, 8, 8)
 
     def generate(self, rng, level):
-        n = SIZES[level]
+        n = (SIZES_COMPACT if theme.COMPACT else SIZES)[level]
         best = None
-        for attempt in range(3000):
-            made = _layout(rng, n, MAX_ISLAND[level], SEA_SHARE[level])
+        board = _Board(n)
+        for attempt in range(4000):
+            made = _layout(rng, n, MAX_ISLAND[level], SEA_SHARE[level],
+                           singles=rng.randint(0, 2))
             if made is None:
                 continue
-            sea, islands = made
+            sea, masks = made
+            islands = [board.cells(m) for m in masks]
             sizes = [len(isl) for isl in islands]
-            # a map worth drawing: several islands, not too many single cells
-            if len(islands) < n - 2 or sizes.count(1) > 2 or max(sizes) < 3:
+            # a map worth drawing: several islands, at least one of some size
+            if len(islands) < n - 2 or max(sizes) < 3:
                 continue
-            clues = sorted([*rng.choice(isl), len(isl)] for isl in islands)
-            sols, branches = solve(n, clues, 2)
-            if len(sols) != 1:
+            flat = [1 if sea >> (r * board.w + c) & 1 else 0
+                    for r in range(n) for c in range(n)]
+            for _ in range(3):                    # a few spots for the numbers
+                clues = sorted([*rng.choice(isl), len(isl)] for isl in islands)
+                sols, branches = solve(n, clues, 2)
+                if len(sols) == 1:
+                    break
+            else:
                 continue
-            puz = {"n": n, "clues": clues,
-                   "sea": [1 if (r, c) in sea else 0 for r in range(n) for c in range(n)]}
+            puz = {"n": n, "clues": clues, "sea": flat}
             # level 1 falls to plain deduction; level 3 asks for a real think
             if level == 1 and branches > 0:
                 best = best or puz
