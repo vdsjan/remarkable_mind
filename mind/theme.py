@@ -77,7 +77,7 @@ CATEGORIES = {
     "ruimte": {"name": "Ruimte", "color": MUSTARD, "on": INK,
                "blurb": "Kijken, draaien en verbinden"},
     "taal": {"name": "Taal & Geheugen", "color": INK, "on": WHITE,
-             "blurb": "Woorden, codes en onthouden"},
+             "blurb": "Woorden, codes, verhalen en onthouden"},
 }
 CATEGORY_ORDER = ["getallen", "logica", "ruimte", "taal"]
 

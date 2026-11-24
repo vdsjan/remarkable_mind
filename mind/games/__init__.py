@@ -3,14 +3,17 @@ import importlib
 
 ORDER = [
     # getallen
-    "sudoku", "calcudoku", "piramide", "reeksen",
+    "sudoku", "calcudoku", "piramide", "reeksen", "lucifers", "dominodetective",
     # logica
-    "binairo", "wolkenkrabbers", "logigram", "bruggen",
+    "binairo", "wolkenkrabbers", "logigram", "bruggen", "lichtplan", "eilandenrijk",
     # ruimte
-    "doolhof", "nonogram", "kleurlink", "lucifers",
+    "doolhof", "nonogram", "kleurlink", "spiegelkamer", "sterrenstelsels", "vouwcode",
     # taal & geheugen
-    "woordzoeker", "codekraker", "letterchaos", "geheugen",
+    "woordzoeker", "codekraker", "letterchaos", "geheugen", "woordladder", "plaatsdelict",
 ]
+# Added in version 2; the website marks these as new.
+NEW = {"dominodetective", "lichtplan", "eilandenrijk", "spiegelkamer",
+       "sterrenstelsels", "vouwcode", "woordladder", "plaatsdelict"}
 
 
 def get(key):

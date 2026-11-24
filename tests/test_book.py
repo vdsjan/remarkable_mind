@@ -103,9 +103,10 @@ def test_training_plan_is_balanced_and_gets_harder():
     assert mean_level(plan[:10]) < mean_level(plan[10:20]) < mean_level(plan[20:])
 
 
-def test_sixteen_games_four_per_category():
+def test_twenty_four_games_six_per_category():
     all_games = games.all_games()
-    assert len(all_games) == 16
-    assert sum(sum(g.counts) for g in all_games) == 400
+    assert len(all_games) == 24
+    assert sum(sum(g.counts) for g in all_games) == 600
     for cat in CATEGORY_ORDER:
-        assert sum(g.category == cat for g in all_games) == 4
+        assert sum(g.category == cat for g in all_games) == 6
+    assert games.NEW <= set(games.ORDER) and len(games.NEW) == 8

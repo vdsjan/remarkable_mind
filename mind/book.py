@@ -40,7 +40,7 @@ DIFFICULTIES = {"mix": "Oplopend", "1": "Opwarmen", "2": "Pittig",
                 "3": "Meesterlijk"}
 # Games whose puzzles are too text-heavy to shrink into a hub-page example.
 NO_EXAMPLE = {"geheugen", "woordzoeker", "logigram", "codekraker",
-              "letterchaos", "reeksen"}
+              "letterchaos", "reeksen", "woordladder", "plaatsdelict", "vouwcode"}
 
 
 # --- what goes into the book ----------------------------------------------------
@@ -310,12 +310,14 @@ def page_home(c, ctx):
 
     groups = [(cat, [g for g in ctx["games"] if g.category == cat]) for cat in CATEGORY_ORDER]
     groups = [(cat, gs) for cat, gs in groups if gs]
-    cols = 2 if COMPACT else 4
+    most = max(len(gs) for _, gs in groups)
+    # up to 4 games per category: a row of 4 (2 on the Move); more: rows of 3
+    cols = (2 if most <= 4 else 3) if COMPACT else (4 if most <= 4 else 3)
     gap = 8 if COMPACT else 9
     head_h, after = 24, 12
     rows = sum(math.ceil(len(gs) / cols) for _, gs in groups)
     avail = top - 26 - len(groups) * (head_h + after) - (rows - len(groups)) * gap
-    th = min(52 if COMPACT else 120, avail / rows)
+    th = min(52 if COMPACT else (120 if cols == 4 else 54), avail / rows)
     tw = (W - 2 * M - (cols - 1) * gap) / cols
     y0 = top
     for cat, gs in groups:
@@ -340,17 +342,22 @@ def _tile(c, game, info, tx, ty, tw, th):
     p.roundRect(tx, ty, tw, th, 9)
     c.clipPath(p, stroke=0, fill=0)
     c.setFillColor(info["color"])
-    if COMPACT:                                  # horizontal tile, colour on the left
+    flat = COMPACT or th < 70                    # horizontal tile, colour on the left
+    if flat:
         c.rect(tx, ty, 7, th, stroke=0, fill=1)
     else:
         c.rect(tx, ty + th - 7, tw, 7, stroke=0, fill=1)
     c.restoreState()
     rrect(c, tx, ty, tw, th, 9, stroke=INK, lw=1.3)
-    if COMPACT:
+    if flat and tw < 110:                        # narrow tile: the name only
+        size = fit_size(game.name, "SansS", tw - 17, 9.5)
+        text(c, tx + 7 + (tw - 7) / 2, ty + th / 2 - size * 0.35, game.name, "SansS",
+             size, INK, "c")
+    elif flat:
         s = min(26, th * 0.55)
         game.icon(c, tx + 12 + s / 2 + 4, ty + th / 2, s, INK)
         x = tx + 12 + s + 12
-        size = fit_size(game.name, "SansS", tx + tw - 6 - x, 10)
+        size = fit_size(game.name, "SansS", tx + tw - 6 - x, 10.5)
         text(c, x, ty + th / 2 - size * 0.35, game.name, "SansS", size, INK)
     else:
         game.icon(c, tx + tw / 2, ty + th / 2 + 6, min(40, th * 0.45), INK)
@@ -550,7 +557,18 @@ def score_pages(ctx):
     """Compact screens get one block per game (name above wrapped boxes);
     wide screens show one row per game on a single page."""
     if not COMPACT:
-        return [list(range(len(ctx["games"])))]
+        n = len(ctx["games"])
+        if n <= 16:
+            return [list(range(n))]
+        pages, cur = [], []
+        for gi, game in enumerate(ctx["games"]):
+            new_cat = gi and ctx["games"][gi - 1].category != game.category
+            if cur and (len(cur) >= 14 or (new_cat and len(cur) >= 8)):
+                pages.append(cur)
+                cur = []
+            cur.append(gi)
+        pages.append(cur)
+        return pages
     top = BAR_Y - 36 - 12 - 14
     bottom = 14 + 30 + 30
     per_row = int((W - 2 * M + 3) / 17)
@@ -782,11 +800,12 @@ def page_solutions_intro(c, ctx):
     bw = (W - 2 * M - gap) / cols
     rows = math.ceil(len(ctx["games"]) / cols)
     bottom = 60 if COMPACT else 66
-    bh = max(24, min(40, (y - bottom) / rows - 9))
+    vgap = 9 if rows <= 8 else 6
+    bh = max(18, min(40, (y - bottom) / rows - vgap))
     for i, game in enumerate(ctx["games"]):
         info = CATEGORIES[game.category]
         bx = M + (i % cols) * (bw + gap)
-        by = y - (i // cols + 1) * (bh + 9)
+        by = y - (i // cols + 1) * (bh + vgap)
         rrect(c, bx, by, bw, bh, 9, stroke=INK, lw=1.2)
         rad = min(13, bh / 2 - 4)
         circle(c, bx + 8 + rad, by + bh / 2, rad, fill=info["color"], stroke=None)

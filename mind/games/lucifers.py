@@ -147,7 +147,7 @@ SHAPES = {
 class Lucifers(Game):
     key = "lucifers"
     name = "Lucifers"
-    category = "ruimte"
+    category = "getallen"
     tagline = "De som klopt niet. Eén lucifer verleggen en ze klopt wel."
     rules = [
         "De som in lucifers is fout. Verplaats precies het gevraagde aantal "
