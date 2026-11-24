@@ -231,8 +231,11 @@ def build_manifest(app_zip, downloads):
                        for k in theme.CATEGORY_ORDER],
         "games": [{"key": g.key, "name": g.name, "category": g.category,
                    "tagline": g.tagline, "parts": g.parts,
+                   "new": g.key in games.NEW,
                    "rules": [theme.localize(r) for r in g.rules]}
                   for g in games.all_games()],
+        "totals": {"games": len(games.ORDER),
+                   "puzzles": sum(sum(g.counts) for g in games.all_games())},
         "devices": [{"key": k, "label": v["label"], "screen": v["screen"],
                      "px": v["px"], "mono": v["mono"], "suffix": v["suffix"],
                      "download": downloads[k]}

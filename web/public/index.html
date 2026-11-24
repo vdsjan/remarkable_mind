@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Remarkable Mind · Hersengym op papier</title>
-  <meta name="description" content="Stel je eigen puzzelboek samen voor de reMarkable Paper Pro, Paper Pro Move of reMarkable 2. Sudoku, logigram, doolhof, codekraker en twaalf andere hersenspellen in één interactieve PDF, gemaakt in je eigen browser.">
+  <meta name="description" content="Stel je eigen puzzelboek samen voor de reMarkable Paper Pro, Paper Pro Move of reMarkable 2. Sudoku, logigram, doolhof, plaats delict, sterrenstelsels en nog veel meer hersenspellen in één interactieve PDF, gemaakt in je eigen browser.">
   <meta name="theme-color" content="#F6F1E6">
   <meta property="og:title" content="Remarkable Mind · Hersengym op papier">
-  <meta property="og:description" content="16 hersenspellen, jouw selectie, één PDF voor je reMarkable. 100% offline.">
+  <meta property="og:description" content="24 hersenspellen, jouw selectie, één PDF voor je reMarkable. 100% offline.">
   <meta property="og:image" content="/img/hero.webp">
   <link rel="icon" href="/img/icons/sudoku.png">
   <link rel="preload" href="/fonts/Fraunces-900.woff2" as="font" type="font/woff2" crossorigin>
@@ -39,8 +39,9 @@
           <a class="btn btn-ink" href="#maak">Stel je boek samen</a>
           <a class="btn" href="#klaar">Download het complete boek</a>
         </div>
+        <p class="whatsnew" id="whatsnew" hidden><span class="badge-new">Nieuw</span> <span id="whatsnew-text"></span></p>
         <ul class="facts">
-          <li><strong>16</strong> spellen</li>
+          <li><strong data-total="games">24</strong> spellen</li>
           <li><strong>3</strong> niveaus</li>
           <li><strong>1</strong> oplossing per puzzel</li>
           <li><strong>100%</strong> offline</li>
@@ -129,7 +130,7 @@
       <div class="section-head">
         <p class="kicker">Liever meteen beginnen?</p>
         <h2 id="klaar-titel">Het complete boek, kant-en-klaar</h2>
-        <p>Alle 16 spellen, 400 puzzels, een dagplan van 30 dagen en alle oplossingen. Editie 2026.</p>
+        <p>Alle <span data-total="games">24</span> spellen, <span data-total="puzzles">600</span> puzzels, een dagplan van 30 dagen en alle oplossingen. Editie 2026.</p>
       </div>
       <div class="ready-grid" id="ready"></div>
     </section>

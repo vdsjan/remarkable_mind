@@ -2,7 +2,7 @@
 // without a connection. Pyodide files and the content-hashed app zip never
 // change under the same name, so they are served cache-first; everything
 // else goes to the network first and falls back to the cache.
-const CACHE = "remarkable-mind-v1";
+const CACHE = "remarkable-mind-v2";
 const IMMUTABLE = [/^\/pyodide\//, /^\/py\/app\.[0-9a-f]+\.zip$/, /^\/fonts\//];
 
 self.addEventListener("install", () => self.skipWaiting());

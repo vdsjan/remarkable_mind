@@ -19,6 +19,7 @@ const PRESETS = [
   { key: "proef", label: "Proefpakket", hint: "3 per spel", fill: () => 3 },
   { key: "week", label: "Weekmix", hint: "5 per spel", fill: () => 5 },
   { key: "vol", label: "Volledig boek", hint: "25 per spel", fill: () => 25 },
+  { key: "nieuw", label: "Nieuw in versie 2", hint: "8 nieuwe spellen", fill: (g) => (g.new ? 8 : 0), isNew: true },
   { key: "getallen", label: "Alleen getallen", hint: "10 per spel", cat: "getallen" },
   { key: "logica", label: "Alleen logica", hint: "10 per spel", cat: "logica" },
   { key: "ruimte", label: "Alleen ruimte", hint: "10 per spel", cat: "ruimte" },
@@ -83,7 +84,7 @@ function estimate() {
   }
   const days = planDays();
   if (days) pages += move ? 1 + Math.ceil(Math.max(0, days - 4) / 8) : Math.ceil(days / 15);
-  pages += move ? Math.max(1, Math.ceil(games / 6)) : 1;
+  pages += move ? Math.max(1, Math.ceil(games / 6)) : (games > 16 ? Math.ceil(games / 12) : 1);
   if (state.solutions && puzzles) pages += 1;
   return { puzzles, games, pages: puzzles ? pages : 0, days };
 }
@@ -108,7 +109,7 @@ function renderDevices() {
 
 function renderPresets() {
   $("#presets").replaceChildren(...PRESETS.map((p) => el("button", {
-    type: "button", class: "chip",
+    type: "button", class: p.isNew ? "chip chip-new" : "chip",
     onclick: () => {
       for (const g of manifest.games) {
         state.counts[g.key] = p.cat ? (g.category === p.cat ? 10 : 0) : p.fill(g);
@@ -139,7 +140,7 @@ function renderCategories() {
       },
         el("img", { src: `/img/icons/${g.key}.png`, alt: "", width: 40, height: 40 }),
         el("div", { class: "game-text" },
-          el("strong", { text: g.name }),
+          el("strong", {}, g.name, g.new ? el("span", { class: "badge-new", text: "Nieuw" }) : null),
           el("small", { text: g.tagline })),
         el("div", { class: "stepper" },
           el("button", { type: "button", "aria-label": `Minder ${g.name}`,
@@ -315,6 +316,14 @@ async function main() {
   renderDifficulty();
   renderReady();
   $("#version").textContent = `versie ${manifest.version}`;
+  for (const node of document.querySelectorAll("[data-total]")) {
+    node.textContent = manifest.totals[node.dataset.total];
+  }
+  const fresh = manifest.games.filter((g) => g.new).map((g) => g.name);
+  if (fresh.length) {
+    $("#whatsnew-text").textContent = `${fresh.length} extra spellen: ${fresh.join(", ")}.`;
+    $("#whatsnew").hidden = false;
+  }
   $("#opt-plan").addEventListener("change", (e) => { state.plan = e.target.checked; update(); });
   $("#opt-solutions").addEventListener("change", (e) => { state.solutions = e.target.checked; update(); });
   $("#opt-seed").addEventListener("change", (e) => {

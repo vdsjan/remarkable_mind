@@ -641,8 +641,9 @@ def page_score(c, ctx, part):
                 if k and lv[k] != lv[k - 1]:
                     lx = M + label_w + k * cw
                     line(c, lx, ry + 4, lx, ry + row_h - 4, 0.5, MID)
-        text(c, M, 28, "Tip: schrijf je tijd in het vakje bij de puzzel en verbeter jezelf.",
-             "SerifI", 9.5, GREY)
+        if len(pages) == 1:                 # with more pages the buttons need the room
+            text(c, M, 28, "Tip: schrijf je tijd in het vakje bij de puzzel en verbeter "
+                 "jezelf.", "SerifI", 9.5, GREY)
     if part + 1 < len(pages):
         _bottom_buttons(c, ("Startscherm", "home", False), ("Verder  ›", nxt, True))
     else:
@@ -837,8 +838,10 @@ def page_colophon(c, ctx):
          "De illustraties in risografie-stijl zijn gegenereerd met de "
          "beeldmodellen van ElevenLabs. De pictogrammen en puzzels zijn "
          "vectortekeningen, zodat ze haarscherp blijven op e-ink."),
-        ("Letters",
-         "Fraunces, Inter en Caveat, alle drie onder de SIL Open Font License."),
+        ("Letters en woorden",
+         "Fraunces, Inter en Caveat, alle drie onder de SIL Open Font License. "
+         "De woordladders gebruiken woorden uit de OpenTaal-woordenlijst "
+         "(BSD / CC BY 3.0)."),
         ("Merken",
          "reMarkable is een merk van reMarkable AS. Dit is een onafhankelijk "
          "project, niet verbonden met of goedgekeurd door reMarkable AS."),
