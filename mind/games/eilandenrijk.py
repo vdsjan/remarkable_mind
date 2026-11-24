@@ -4,13 +4,11 @@ The solver works on bitmasks. A board of n x n cells is stored with one
 padding column (width n + 1), so shifting a mask by 1 or by the width moves
 every cell to a neighbour without wrapping around the edges.
 """
-from .. import theme
-from ..draw import Grid, circle, line, rrect, text, text_mid
-from ..theme import GREY, INK, PEN, WHITE
+from ..draw import Grid, circle, line, text_mid
+from ..theme import INK, PEN, WHITE
 from .base import Game
 
-SIZES = {1: 5, 2: 6, 3: 8}
-SIZES_COMPACT = {1: 5, 2: 6, 3: 7}          # Paper Pro Move: keep cells large
+SIZES = {1: 5, 2: 6, 3: 7}                  # the same on every device
 MAX_ISLAND = {1: 4, 2: 5, 3: 6}
 SEA_SHARE = {1: (0.48, 0.64), 2: (0.50, 0.64), 3: (0.50, 0.64)}
 
@@ -243,18 +241,18 @@ class Eilandenrijk(Game):
         "zoveel vakjes, en op elk eiland ligt precies één getal.",
         "Eilanden raken elkaar nooit langs een zijde; schuin mag wel.",
         "De zee is één aaneengesloten geheel en vult nergens een blok van "
-        "2 × 2 vakjes.",
+        "2×2 vakjes.",
     ]
     tips = [
         "Een 1 is meteen klaar: de vier vakjes ernaast zijn zee. Ook een "
         "vakje tussen twee getallen is altijd zee.",
         "Zet een stip in vakjes die zeker land zijn. Dreigt er een blok van "
-        "2 × 2 zee, dan is het vierde vakje land.",
+        "2×2 zee, dan is het vierde vakje land.",
     ]
     counts = (9, 8, 8)
 
     def generate(self, rng, level):
-        n = (SIZES_COMPACT if theme.COMPACT else SIZES)[level]
+        n = SIZES[level]
         best = None
         board = _Board(n)
         for attempt in range(4000):
@@ -314,7 +312,7 @@ class Eilandenrijk(Game):
 
     def instruction(self, puz, part=0):
         return ("Kleur de zee in: elk getal telt de vakjes van zijn eiland, en "
-                "de zee blijft één geheel zonder blok van 2 × 2.")
+                "de zee blijft één geheel, zonder blok van 2×2.")
 
     @staticmethod
     def _water(c, x, y, s):
@@ -352,15 +350,19 @@ class Eilandenrijk(Game):
     def icon(self, c, cx, cy, s, color):
         h = s / 2
         q = s / 3
-        c.saveState()
-        c.setFillColor(color)
         for r, col in ((0, 0), (0, 1), (0, 2), (1, 2), (2, 0), (2, 1), (2, 2)):
-            c.rect(cx - h + col * q, cy + h - (r + 1) * q, q, q, stroke=0, fill=1)
-        c.restoreState()
-        for k in range(4):
-            line(c, cx - h + k * q, cy - h, cx - h + k * q, cy + h, 1.1, color, cap=2)
-            line(c, cx - h, cy - h + k * q, cx + h, cy - h + k * q, 1.1, color, cap=2)
-        text_mid(c, cx - q, cy, "2", "SansB", q * 0.8, color)
+            x, y = cx - h + col * q, cy + h - (r + 1) * q
+            for t in (0.5, 1.0, 1.5):             # hatched sea
+                line(c, x + max(0.0, t - 1) * q, y + min(t, 1) * q,
+                     x + min(t, 1) * q, y + max(0.0, t - 1) * q, 0.9, color)
+        for k in (0, 3):
+            line(c, cx - h + k * q, cy - h, cx - h + k * q, cy + h, 1.5, color, cap=2)
+            line(c, cx - h, cy - h + k * q, cx + h, cy - h + k * q, 1.5, color, cap=2)
+        # the shore of a two-cell island
+        line(c, cx - h, cy + q / 2, cx + q / 2, cy + q / 2, 1.3, color)
+        line(c, cx - h, cy - q / 2, cx + q / 2, cy - q / 2, 1.3, color)
+        line(c, cx + q / 2, cy - q / 2, cx + q / 2, cy + q / 2, 1.3, color)
+        text_mid(c, cx - q, cy, "2", "SansB", q * 0.85, color)
 
 
 GAME = Eilandenrijk()
